@@ -1,0 +1,32 @@
+services:
+  nestjs-server:
+    build: ./
+    container_name: nestjs-server
+    ports:
+      - '3000:3000'
+    networks:
+      - Qnote_network
+    volumes:
+      - ./:/app
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@mysql-server:3306/${DB_NAME}
+    depends_on:
+      - mysql-server
+
+  mysql-server:
+    image: mysql:latest
+    container_name: mysql-server
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PW}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - '3306:3306'
+    networks:
+      - Qnote_network
+
+networks:
+  Qnote_network:
+    driver: bridge
