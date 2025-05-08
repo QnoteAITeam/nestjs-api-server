@@ -29,17 +29,17 @@ export class User {
   updateAt: Date;
 
   //Profile Image Url을 넣을 겁니다.
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   profileImage: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   password: string | null;
 
   //'user' or 'admin' 으로 관리할 것입니다.
   @Column({ default: 'user' })
   role: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 15, nullable: true })
   phoneNumber: string | null;
 
   @Column({ default: false })
@@ -48,6 +48,6 @@ export class User {
   @Column({ default: 0 })
   loginAttempts: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 6, nullable: true })
   provider: 'local' | 'google' | 'kakao' | null;
 }
