@@ -1,3 +1,4 @@
+import { ChatSession } from 'src/chat-sessions/chat-session.entity';
 import {
   Entity,
   Column,
@@ -5,14 +6,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
+import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, length: 25 })
+  @Column({ nullable: false, length: 25, default: '꿈꿈이' })
   username: string;
 
   @Column({ unique: true })
@@ -32,7 +35,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   profileImage: string | null;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 65, nullable: true })
   password: string | null;
 
   //'user' or 'admin' 으로 관리할 것입니다.
@@ -48,6 +51,9 @@ export class User {
   @Column({ default: 0 })
   loginAttempts: number;
 
-  @Column({ type: 'varchar', length: 6, nullable: true })
-  provider: 'local' | 'google' | 'kakao' | null;
+  @Column({ type: 'varchar', length: 6, default: 'local' })
+  provider: 'local' | 'google' | 'kakao';
+
+  @OneToMany(() => ChatSession, (session) => session.user)
+  sessions: ChatSession[];
 }

@@ -4,9 +4,13 @@ import { AppService } from './app.service';
 import { OpenAIModule } from './openai/openai.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+import { UserModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { User } from './user/user.entity';
+import { User } from './users/user.entity';
+import { ChatSessionModule } from './chat-sessions/chat-sessions.module';
+import { ChatMessageModule } from './chat-messages/chat-messages.module';
+import { ChatMessage } from './chat-messages/chat-message.entity';
+import { ChatSession } from './chat-sessions/chat-session.entity';
 
 @Module({
   imports: [
@@ -21,7 +25,7 @@ import { User } from './user/user.entity';
       username: 'root',
       password: process.env.DB_ROOT_PW,
       database: process.env.DB_NAME,
-      entities: [User],
+      entities: [User, ChatMessage, ChatSession],
 
       //entity로, 테이블을 자동으로 생성하고, 업데이트함.
       synchronize: true,
@@ -29,7 +33,9 @@ import { User } from './user/user.entity';
 
     OpenAIModule,
     UserModule,
-    // AuthModule,
+    ChatSessionModule,
+    ChatMessageModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

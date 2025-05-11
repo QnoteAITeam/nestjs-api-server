@@ -1,8 +1,8 @@
 // src/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UserService } from '../users/users.service';
 
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import {
   IEmail,
   IEmailandPassword,
@@ -10,7 +10,7 @@ import {
   IPayLoad,
   ITokens,
 } from 'src/commons/interfaces/interfaces';
-import { User } from 'src/user/user.entity';
+import { User } from 'src/users/user.entity';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 
 @Injectable()
@@ -70,15 +70,16 @@ export class AuthService {
     const payload: IPayLoad = {
       sub: user.id,
       name: user.username,
+      provider: user.provider,
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
+      secret: process.env.JWT_SECRET_KEY!,
       expiresIn: '3h',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
+      secret: process.env.JWT_SECRET_KEY!,
       expiresIn: '7d',
     });
 
@@ -94,15 +95,16 @@ export class AuthService {
     const payload: IPayLoad = {
       sub: user.id,
       name: user.username,
+      provider: user.provider,
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
+      secret: process.env.JWT_SECRET_KEY!,
       expiresIn: '3h',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
+      secret: process.env.JWT_SECRET_KEY!,
       expiresIn: '7d',
     });
 

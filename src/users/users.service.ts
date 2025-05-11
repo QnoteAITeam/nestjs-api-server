@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { IEmail, IID } from 'src/commons/interfaces/interfaces';
+import * as bcrypt from 'bcryptjs';
+import { hash } from 'crypto';
+import { ConflictError } from 'openai';
 
 @Injectable()
 export class UserService {
@@ -19,8 +22,16 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async createUser(username: string, email: string): Promise<User> {
-    const user = this.userRepository.create({ username, email });
+  async createUser(email: string, password: string): Promise<User> {
+    const prev = await this.findByEmail({ email });
+    if (prev) throw new ConflictException('이미 사용 중인 이메일 입니다.');
+
+    const hashed = await bcrypt.hash(
+      password,
+      parseInt(process.env.SALT_ROUNDS!),
+    );
+
+    const user = this.userRepository.create({ email, password: hashed });
     return this.userRepository.save(user);
   }
 
