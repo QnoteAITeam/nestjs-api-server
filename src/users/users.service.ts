@@ -1,15 +1,22 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { IEmail, IID } from 'src/commons/interfaces/interfaces';
 import { UserPasswordService } from 'src/user-passwords/user-passwords.service';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => UserPasswordService))
     private readonly userPasswordService: UserPasswordService,
   ) {}
 

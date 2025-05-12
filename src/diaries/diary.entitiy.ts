@@ -27,6 +27,9 @@ export class Diary {
   @Column('text')
   content: string;
 
+  @Column('text')
+  summary: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -13,11 +13,11 @@ import {
 export class TagService {
   constructor(
     @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>,
+    private readonly tagRepository: Repository<Tag>,
     @InjectRepository(EmotionTag)
-    private emotionTagRepository: Repository<EmotionTag>,
+    private readonly emotionTagRepository: Repository<EmotionTag>,
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) {}
 
   //User의 관계 emotionTags들도, 다 넣어서 와야합니다. 사용 하니까요!

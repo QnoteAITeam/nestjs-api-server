@@ -14,6 +14,8 @@ import { ChatSession } from './chat-sessions/chat-session.entity';
 import { Diary } from './diaries/diary.entitiy';
 import { EmotionTag } from './tags/entities/emotion-tag.entity';
 import { Tag } from './tags/entities/tag.entity';
+import { DiaryModule } from './diaries/diaries.module';
+import { UserPassword } from './user-passwords/user-password.entity';
 
 @Module({
   imports: [
@@ -28,9 +30,18 @@ import { Tag } from './tags/entities/tag.entity';
       username: 'root',
       password: process.env.DB_ROOT_PW,
       database: process.env.DB_NAME,
-      entities: [User, ChatMessage, ChatSession, Diary, EmotionTag, Tag],
+      entities: [
+        User,
+        ChatMessage,
+        ChatSession,
+        Diary,
+        EmotionTag,
+        Tag,
+        UserPassword,
+      ],
 
       //entity로, 테이블을 자동으로 생성하고, 업데이트함.
+      // migrationsRun: true,
       synchronize: true,
     }),
 
@@ -39,6 +50,7 @@ import { Tag } from './tags/entities/tag.entity';
     ChatSessionModule,
     ChatMessageModule,
     AuthModule,
+    DiaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

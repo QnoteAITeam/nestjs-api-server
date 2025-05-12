@@ -7,10 +7,11 @@ import { UserService } from 'src/users/users.service';
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
 import { ChatMessage } from './chat-message.entity';
 import { User } from 'src/users/user.entity';
+import { UserModule } from 'src/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, ChatSession, ChatMessage])],
+  imports: [TypeOrmModule.forFeature([ChatSession, ChatMessage]), UserModule],
   controllers: [ChatMessageController],
-  providers: [UserService, ChatSessionService, ChatMessageService],
+  providers: [ChatSessionService, ChatMessageService],
 })
 export class ChatMessageModule {}

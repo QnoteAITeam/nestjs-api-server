@@ -13,7 +13,6 @@ export class Tag {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Index()
   @Column({ unique: true, length: 10 })
   name: string;
 

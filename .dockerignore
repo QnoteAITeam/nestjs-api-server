@@ -2,3 +2,5 @@
 # .env
 
 README.md
+node_modules
+dist

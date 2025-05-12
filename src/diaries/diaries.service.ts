@@ -2,34 +2,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
-import { Tag } from 'src/tags/entities/tag.entity';
-import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { Diary } from './diary.entitiy';
+import { ICreate, IUpdate } from './dto/diaries-controller.dto';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @InjectRepository(Diary)
     private diaryRepository: Repository<Diary>,
-
-    @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>,
-
-    @InjectRepository(EmotionTag)
-    private emotionTagRepository: Repository<EmotionTag>,
   ) {}
 
-  async create(
-    user: User,
-    title: string,
-    content: string,
-    tagIds: number[] = [],
-    emotionTagIds: number[] = [],
-  ): Promise<Diary> {
-    const tags = await this.tagRepository.findByIds(tagIds);
-    const emotionTags =
-      await this.emotionTagRepository.findByIds(emotionTagIds);
-
+  async create({
+    user,
+    title,
+    content,
+    tags,
+    emotionTags,
+  }: ICreate): Promise<Diary> {
     const diary = this.diaryRepository.create({
       title,
       content,
@@ -41,57 +30,81 @@ export class DiaryService {
     return this.diaryRepository.save(diary);
   }
 
-  async findAll(user: User): Promise<Diary[]> {
+  //pagenation (페이지네이션) 을 적용하여 보냄.
+  async findAll({
+    user,
+    page,
+  }: {
+    user: User;
+    page: number;
+  }): Promise<Diary[]> {
+    const take = 50;
+    const skip = (page - 1) * take;
+
     return this.diaryRepository.find({
+      where: { user },
+      relations: ['tags', 'emotionTags'],
+      order: { createdAt: 'DESC' },
+      take,
+      skip,
+    });
+  }
+
+  //유저가 가장 최근 N개의 일기를 리턴합니다.
+  async findRecentN({
+    user,
+    count,
+  }: {
+    user: User;
+    count: number;
+  }): Promise<Diary[]> {
+    return this.diaryRepository.find({
+      where: { user },
+      relations: ['tags', 'emotionTags'],
+      order: { createdAt: 'DESC' },
+      take: count,
+    });
+  }
+
+  //유저가 작성한 가장 최근 일기를 가져옵니다.
+  async findMostRecent(user: User): Promise<Diary | null> {
+    return this.diaryRepository.findOne({
       where: { user },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findOne(id: number, user: User): Promise<Diary> {
-    const diary = await this.diaryRepository.findOne({
-      where: { id, user },
-      relations: ['tags', 'emotionTags'],
-    });
-
-    if (!diary) {
-      throw new NotFoundException(`Diary with id ${id} not found`);
-    }
-
-    return diary;
+  async findOneById(id: number) {
+    return this.diaryRepository.findOne({ where: { id } });
   }
 
-  async update(
-    id: number,
-    user: User,
-    updateData: {
-      title?: string;
-      content?: string;
-      tagIds?: number[];
-      emotionTagIds?: number[];
-    },
-  ): Promise<Diary> {
-    const diary = await this.findOne(id, user);
+  //id : number에 해당하는 다이어리를 업데이트함.
+  async update({ id, user, updateData }: IUpdate): Promise<Diary> {
+    const diary = await this.findOneById(id);
+
+    if (diary === null)
+      throw new NotFoundException(`Diary with ID ${id} not found.`);
 
     if (updateData.title !== undefined) diary.title = updateData.title;
     if (updateData.content !== undefined) diary.content = updateData.content;
 
-    if (updateData.tagIds) {
-      diary.tags = await this.tagRepository.findByIds(updateData.tagIds);
+    if (updateData.tags) {
+      diary.tags = updateData.tags;
     }
 
-    if (updateData.emotionTagIds) {
-      diary.emotionTags = await this.emotionTagRepository.findByIds(
-        updateData.emotionTagIds,
-      );
+    if (updateData.emotionTags) {
+      diary.emotionTags = updateData.emotionTags;
     }
 
     return this.diaryRepository.save(diary);
   }
 
-  async remove(id: number, user: User): Promise<void> {
-    const diary = await this.findOne(id, user);
+  async remove(id: number): Promise<void> {
+    const diary = await this.findOneById(id);
+    if (!diary)
+      throw new NotFoundException(`There is no Diary.id = ${id} in DB`);
+
     await this.diaryRepository.remove(diary);
   }
 }
