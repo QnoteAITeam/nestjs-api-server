@@ -1,4 +1,8 @@
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
+import { Diary } from 'src/diaries/diary.entitiy';
+import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
+import { Tag } from 'src/tags/entities/tag.entity';
+import { UserPassword } from 'src/user-passwords/user-password.entity';
 import {
   Entity,
   Column,
@@ -7,6 +11,8 @@ import {
   UpdateDateColumn,
   Index,
   OneToMany,
+  OneToOne,
+  ManyToMany,
 } from 'typeorm';
 import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
@@ -35,8 +41,8 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   profileImage: string | null;
 
-  @Column({ type: 'varchar', length: 65, nullable: true })
-  password: string | null;
+  @OneToOne(() => UserPassword, (password) => password.user, { cascade: true })
+  password: UserPassword;
 
   //'user' or 'admin' 으로 관리할 것입니다.
   @Column({ default: 'user' })
@@ -56,4 +62,15 @@ export class User {
 
   @OneToMany(() => ChatSession, (session) => session.user)
   sessions: ChatSession[];
+
+  @OneToMany(() => Diary, (diary) => diary.user)
+  diaries: Diary[];
+
+  @ManyToMany(() => EmotionTag, (emotionTag) => emotionTag.users, {
+    cascade: true,
+  })
+  emotionTags: EmotionTag[];
+
+  @ManyToMany(() => Tag, (tag) => tag.users, { cascade: true })
+  tags: Tag[];
 }

@@ -2,16 +2,16 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import OpenAI from 'openai';
 import { ChatCompletion } from 'openai/resources/chat';
 import { AIRequestDto } from './dto/openai-request.dto';
-import { ChatSessionsService } from 'src/chat-sessions/chat-sessions.service';
-import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
+import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 
 @Injectable()
 export class OpenAIService implements OnModuleInit {
   private openai: OpenAI;
 
   constructor(
-    private readonly chatSessionService: ChatSessionsService,
-    private readonly chatMessageService: ChatMessagesService,
+    private readonly chatSessionService: ChatSessionService,
+    private readonly chatMessageService: ChatMessageService,
   ) {}
 
   onModuleInit() {

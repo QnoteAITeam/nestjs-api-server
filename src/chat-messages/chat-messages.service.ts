@@ -10,7 +10,7 @@ import {
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
 
 @Injectable()
-export class ChatMessagesService {
+export class ChatMessageService {
   constructor(
     @InjectRepository(ChatMessage)
     private readonly messageRepository: Repository<ChatMessage>,

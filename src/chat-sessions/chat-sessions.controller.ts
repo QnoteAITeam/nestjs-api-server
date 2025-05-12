@@ -10,7 +10,7 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ChatSessionsService } from './chat-sessions.service';
+import { ChatSessionService } from './chat-sessions.service';
 import { UserService } from 'src/users/users.service';
 import { ChatSession } from './chat-session.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -18,9 +18,9 @@ import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { User } from 'src/auth/auth-user.decorator';
 
 @Controller('sessions')
-export class ChatSessionsController {
+export class ChatSessionController {
   constructor(
-    private readonly chatSessionsService: ChatSessionsService,
+    private readonly chatSessionsService: ChatSessionService,
     private readonly usersService: UserService,
   ) {}
 

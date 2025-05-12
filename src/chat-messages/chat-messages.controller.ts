@@ -9,19 +9,19 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ChatMessagesService } from './chat-messages.service';
+import { ChatMessageService } from './chat-messages.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ChatMessage } from './chat-message.entity';
-import { ChatSessionsService } from 'src/chat-sessions/chat-sessions.service';
+import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { UserService } from 'src/users/users.service';
 import { User } from 'src/auth/auth-user.decorator';
 
 @Controller('chat-messages')
-export class ChatMessagesController {
+export class ChatMessageController {
   constructor(
-    private readonly chatMessagesService: ChatMessagesService,
-    private readonly chatSessionsService: ChatSessionsService,
+    private readonly chatMessagesService: ChatMessageService,
+    private readonly chatSessionsService: ChatSessionService,
     private readonly userService: UserService,
   ) {}
 

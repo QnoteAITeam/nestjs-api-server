@@ -9,6 +9,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/user.entity';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
+import { UserPasswordService } from 'src/user-passwords/user-passwords.service';
+import { UserPassword } from 'src/user-passwords/user-password.entity';
 
 @Module({
   imports: [
@@ -20,12 +22,18 @@ import { JwtStrategy } from './jwt.strategy';
     }),
 
     //UserRepository를 사용하려면, 등록해주어야 한다.
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserPassword]),
 
     PassportModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    UserService,
+    LocalStrategy,
+    JwtStrategy,
+    UserPasswordService,
+  ],
   exports: [JwtModule],
 })
 export class AuthModule {}

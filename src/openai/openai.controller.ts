@@ -12,8 +12,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/auth/auth-user.decorator';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { UserService } from 'src/users/users.service';
-import { ChatSessionsService } from 'src/chat-sessions/chat-sessions.service';
-import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
+import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 import { AIRequestMessage } from './dto/openai-request.dto';
 import { ChatCompletion } from 'openai/resources/chat';
 
@@ -22,8 +22,8 @@ export class OpenAIController {
   constructor(
     private readonly openAiService: OpenAIService,
     private readonly userService: UserService,
-    private readonly chatSessionService: ChatSessionsService,
-    private readonly chatMessageService: ChatMessagesService,
+    private readonly chatSessionService: ChatSessionService,
+    private readonly chatMessageService: ChatMessageService,
   ) {}
 
   @UseGuards(JwtAuthGuard)

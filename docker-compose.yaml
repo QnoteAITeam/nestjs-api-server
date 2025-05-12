@@ -1,9 +1,23 @@
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - '443:443'
+    volumes:
+      - ./nginx:/etc/nginx
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - nestjs-server
+    networks:
+      - Qnote_network
+
   nestjs-server:
     build: ./
     container_name: nestjs-server
-    ports:
-      - '3000:3000'
+    # ports:
+    #   - '3000:3000'
     networks:
       - Qnote_network
     volumes:
@@ -23,8 +37,8 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - '3306:3306'
+    # ports:
+    #   - '3306:3306'
     networks:
       - Qnote_network
 

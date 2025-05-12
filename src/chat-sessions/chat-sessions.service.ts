@@ -8,17 +8,17 @@ import {
 } from './dto/chat-sessions-service.interface';
 import { User } from 'src/users/user.entity';
 import { ChatMessage } from 'src/chat-messages/chat-message.entity';
-import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 
 @Injectable()
-export class ChatSessionsService {
+export class ChatSessionService {
   constructor(
     @InjectRepository(ChatSession)
     private readonly sessionRepository: Repository<ChatSession>,
     @InjectRepository(ChatMessage)
     private readonly messageRepository: Repository<ChatMessage>,
 
-    private readonly chatMessageService: ChatMessagesService,
+    private readonly chatMessageService: ChatMessageService,
   ) {}
 
   async findById({ id }: { id: number }) {

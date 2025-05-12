@@ -3,15 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { IEmail, IID } from 'src/commons/interfaces/interfaces';
-import * as bcrypt from 'bcryptjs';
-import { hash } from 'crypto';
-import { ConflictError } from 'openai';
+import { UserPasswordService } from 'src/user-passwords/user-passwords.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly userPasswordService: UserPasswordService,
   ) {}
 
   async findByEmail({ email }: IEmail): Promise<User | null> {
@@ -26,12 +25,15 @@ export class UserService {
     const prev = await this.findByEmail({ email });
     if (prev) throw new ConflictException('이미 사용 중인 이메일 입니다.');
 
-    const hashed = await bcrypt.hash(
-      password,
-      parseInt(process.env.SALT_ROUNDS!),
-    );
+    const passwordEntity = await this.userPasswordService.createPassword({
+      rawPassword: password,
+    });
 
-    const user = this.userRepository.create({ email, password: hashed });
+    const user = this.userRepository.create({
+      email,
+      password: passwordEntity,
+    });
+
     return this.userRepository.save(user);
   }
 

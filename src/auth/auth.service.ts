@@ -12,11 +12,13 @@ import {
 } from 'src/commons/interfaces/interfaces';
 import { User } from 'src/users/user.entity';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { UserPasswordService } from 'src/user-passwords/user-passwords.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly userPasswordService: UserPasswordService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -58,9 +60,12 @@ export class AuthService {
     const user = await this.userService.findByEmail({ email });
     if (user == null) return null;
 
-    const correctPassword = await bcrypt.compare(password, user.password!);
+    const isValid = await this.userPasswordService.matchPasswordByUser({
+      user,
+      rawPassword: password,
+    });
 
-    if (correctPassword) return user;
+    if (isValid) return user;
     return null;
   }
 
