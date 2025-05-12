@@ -40,9 +40,8 @@ import { UserPassword } from './user-passwords/user-password.entity';
         UserPassword,
       ],
 
-      //entity로, 테이블을 자동으로 생성하고, 업데이트함.
-      // migrationsRun: true,
-      synchronize: true,
+      migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',
+      synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
     }),
 
     OpenAIModule,
