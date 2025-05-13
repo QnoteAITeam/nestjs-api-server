@@ -1,19 +1,100 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  NotFoundException,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { OpenAIService } from './openai.service';
-import { ChatRequestDto } from './dto/openai-request.dto';
+import { SendMessageDto, ResponseMessageDto } from './dto/send-message.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { User } from 'src/auth/auth-user.decorator';
+import { IPayLoad } from 'src/commons/interfaces/interfaces';
+import { UserService } from 'src/users/users.service';
+import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
+import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
+import { AIRequestMessage } from './dto/openai-request.dto';
+import { ChatCompletion } from 'openai/resources/chat';
 
 @Controller('openai')
 export class OpenAIController {
-  constructor(private readonly openAiService: OpenAIService) {}
+  constructor(
+    private readonly openAiService: OpenAIService,
+    private readonly userService: UserService,
+    private readonly chatSessionService: ChatSessionService,
+    private readonly chatMessageService: ChatMessageService,
+  ) {}
 
-  @Post('sendMessages')
-  async sendMessages(@Body() chatRequest: ChatRequestDto): Promise<string> {
-    const response = await this.openAiService.sendMessage(chatRequest);
-    return JSON.stringify(response);
+  @UseGuards(JwtAuthGuard)
+  @Post('send-message')
+  async sendMessage(
+    @User() payload: IPayLoad,
+    @Body() body: { message: string },
+  ): Promise<SendMessageDto> {
+    // 유저의 최근 세션을 찾아서, 최근 세션의 메세지를 다 합쳐서 api쿼리.
+    const user = await this.userService.findById({ id: payload.sub });
+    if (!user)
+      throw new UnauthorizedException(
+        'OpenAI Controller 30line Issue.. this should not be occured',
+      );
+
+    console.log(user);
+
+    const session = await this.chatSessionService.findMostRecentByUser({
+      user,
+    });
+
+    console.log(session);
+
+    if (!session)
+      throw new NotFoundException('There is no session in this account');
+
+    const messages = session.messages;
+    const messageList: AIRequestMessage[] = [];
+    messages.forEach((value) => {
+      messageList.push({ role: value.role, content: value.text });
+    });
+    messageList.push({ role: 'user', content: body.message });
+
+    const result: ChatCompletion = await this.openAiService.sendMessage({
+      messages: messageList,
+    });
+
+    const response = result.choices[0].message;
+
+    console.log(response);
+
+    await this.chatMessageService.createMessage({
+      session,
+      text: body.message,
+      role: 'user',
+    });
+
+    if (response.content == null) {
+      throw new Error("AI doesn't answered");
+    }
+
+    await this.chatMessageService.createMessage({
+      session,
+      text: response.content,
+      role: 'assistant',
+    });
+
+    console.log(JSON.parse(response.content));
+
+    const object = JSON.parse(response.content) as ResponseMessageDto;
+
+    return {
+      role: 'assistant',
+      state: object.asking == 1 ? 'asking' : 'done',
+      message: response.content,
+    };
   }
 
-  @Get('hello')
-  getHello(): string {
-    return 'hello';
-  }
+  // 필요 없음.
+  // @Get('messages')
+  // async getMessages(): Promise<GetMessagesDto> {
+  //   //
+  // }
 }

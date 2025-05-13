@@ -1,8 +1,8 @@
-export class ChatMessage {
+export class AIRequestMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-export class ChatRequestDto {
-  messages: ChatMessage[];
+export class AIRequestDto {
+  messages: AIRequestMessage[];
 }

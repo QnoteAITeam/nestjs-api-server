@@ -1,0 +1,1672 @@
+diff --git a/Dockerfile b/Dockerfile
+index ab37853..c829d8c 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -4,6 +4,7 @@ WORKDIR /app
+ 
+ COPY package*.json ./
+ RUN npm install
++# RUN rm -rf node_modules/ && npm update
+ 
+ COPY . .
+ 
+diff --git a/docker-compose.yaml b/docker-compose.yaml
+index fb9eb93..5589da3 100644
+--- a/docker-compose.yaml
++++ b/docker-compose.yaml
+@@ -8,6 +8,7 @@ services:
+       - Qnote_network
+     volumes:
+       - ./:/app
++      - /app/node_modules
+     environment:
+       - NODE_ENV=production
+       - DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@mysql-server:3306/${DB_NAME}
+diff --git a/package-lock.json b/package-lock.json
+index cb8ee02..3c065a0 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -17,7 +17,7 @@
+         "@nestjs/platform-express": "^11.0.1",
+         "@nestjs/typeorm": "^11.0.0",
+         "axios": "^1.9.0",
+-        "bcrypt": "^5.1.1",
++        "bcryptjs": "^3.0.2",
+         "mysql2": "^3.14.1",
+         "openai": "^4.97.0",
+         "passport": "^0.7.0",
+@@ -36,7 +36,6 @@
+         "@swc/cli": "^0.6.0",
+         "@swc/core": "^1.10.7",
+         "@types/axios": "^0.14.4",
+-        "@types/bcrypt": "^5.0.2",
+         "@types/express": "^5.0.0",
+         "@types/jest": "^29.5.14",
+         "@types/node": "^22.10.7",
+@@ -1922,47 +1921,6 @@
+         "node": ">=8"
+       }
+     },
+-    "node_modules/@mapbox/node-pre-gyp": {
+-      "version": "1.0.11",
+-      "resolved": "https://registry.npmjs.org/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.11.tgz",
+-      "integrity": "sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==",
+-      "dependencies": {
+-        "detect-libc": "^2.0.0",
+-        "https-proxy-agent": "^5.0.0",
+-        "make-dir": "^3.1.0",
+-        "node-fetch": "^2.6.7",
+-        "nopt": "^5.0.0",
+-        "npmlog": "^5.0.1",
+-        "rimraf": "^3.0.2",
+-        "semver": "^7.3.5",
+-        "tar": "^6.1.11"
+-      },
+-      "bin": {
+-        "node-pre-gyp": "bin/node-pre-gyp"
+-      }
+-    },
+-    "node_modules/@mapbox/node-pre-gyp/node_modules/make-dir": {
+-      "version": "3.1.0",
+-      "resolved": "https://registry.npmjs.org/make-dir/-/make-dir-3.1.0.tgz",
+-      "integrity": "sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==",
+-      "dependencies": {
+-        "semver": "^6.0.0"
+-      },
+-      "engines": {
+-        "node": ">=8"
+-      },
+-      "funding": {
+-        "url": "https://github.com/sponsors/sindresorhus"
+-      }
+-    },
+-    "node_modules/@mapbox/node-pre-gyp/node_modules/make-dir/node_modules/semver": {
+-      "version": "6.3.1",
+-      "resolved": "https://registry.npmjs.org/semver/-/semver-6.3.1.tgz",
+-      "integrity": "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==",
+-      "bin": {
+-        "semver": "bin/semver.js"
+-      }
+-    },
+     "node_modules/@modelcontextprotocol/sdk": {
+       "version": "1.11.0",
+       "resolved": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.11.0.tgz",
+@@ -3339,15 +3297,6 @@
+         "@babel/types": "^7.20.7"
+       }
+     },
+-    "node_modules/@types/bcrypt": {
+-      "version": "5.0.2",
+-      "resolved": "https://registry.npmjs.org/@types/bcrypt/-/bcrypt-5.0.2.tgz",
+-      "integrity": "sha512-6atioO8Y75fNcbmj0G7UjI9lXN2pQ/IGJ2FWT4a/btd0Lk9lQalHLKhkgKVZ3r+spnmWUKfbMi1GEe9wyHQfNQ==",
+-      "dev": true,
+-      "dependencies": {
+-        "@types/node": "*"
+-      }
+-    },
+     "node_modules/@types/body-parser": {
+       "version": "1.19.5",
+       "resolved": "https://registry.npmjs.org/@types/body-parser/-/body-parser-1.19.5.tgz",
+@@ -4689,11 +4638,6 @@
+       "dev": true,
+       "license": "Apache-2.0"
+     },
+-    "node_modules/abbrev": {
+-      "version": "1.1.1",
+-      "resolved": "https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz",
+-      "integrity": "sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q=="
+-    },
+     "node_modules/abort-controller": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/abort-controller/-/abort-controller-3.0.0.tgz",
+@@ -4754,17 +4698,6 @@
+         "node": ">=0.4.0"
+       }
+     },
+-    "node_modules/agent-base": {
+-      "version": "6.0.2",
+-      "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz",
+-      "integrity": "sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==",
+-      "dependencies": {
+-        "debug": "4"
+-      },
+-      "engines": {
+-        "node": ">= 6.0.0"
+-      }
+-    },
+     "node_modules/agentkeepalive": {
+       "version": "4.6.0",
+       "resolved": "https://registry.npmjs.org/agentkeepalive/-/agentkeepalive-4.6.0.tgz",
+@@ -4948,11 +4881,6 @@
+       "integrity": "sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==",
+       "license": "MIT"
+     },
+-    "node_modules/aproba": {
+-      "version": "2.0.0",
+-      "resolved": "https://registry.npmjs.org/aproba/-/aproba-2.0.0.tgz",
+-      "integrity": "sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ=="
+-    },
+     "node_modules/arch": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/arch/-/arch-3.0.0.tgz",
+@@ -4974,32 +4902,6 @@
+       ],
+       "license": "MIT"
+     },
+-    "node_modules/are-we-there-yet": {
+-      "version": "2.0.0",
+-      "resolved": "https://registry.npmjs.org/are-we-there-yet/-/are-we-there-yet-2.0.0.tgz",
+-      "integrity": "sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==",
+-      "deprecated": "This package is no longer supported.",
+-      "dependencies": {
+-        "delegates": "^1.0.0",
+-        "readable-stream": "^3.6.0"
+-      },
+-      "engines": {
+-        "node": ">=10"
+-      }
+-    },
+-    "node_modules/are-we-there-yet/node_modules/readable-stream": {
+-      "version": "3.6.2",
+-      "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+-      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+-      "dependencies": {
+-        "inherits": "^2.0.3",
+-        "string_decoder": "^1.1.1",
+-        "util-deprecate": "^1.0.1"
+-      },
+-      "engines": {
+-        "node": ">= 6"
+-      }
+-    },
+     "node_modules/arg": {
+       "version": "4.1.3",
+       "resolved": "https://registry.npmjs.org/arg/-/arg-4.1.3.tgz",
+@@ -5226,17 +5128,12 @@
+       ],
+       "license": "MIT"
+     },
+-    "node_modules/bcrypt": {
+-      "version": "5.1.1",
+-      "resolved": "https://registry.npmjs.org/bcrypt/-/bcrypt-5.1.1.tgz",
+-      "integrity": "sha512-AGBHOG5hPYZ5Xl9KXzU5iKq9516yEmvCKDg3ecP5kX2aB6UqTeXZxk2ELnDgDm6BQSMlLt9rDB4LoSMx0rYwww==",
+-      "hasInstallScript": true,
+-      "dependencies": {
+-        "@mapbox/node-pre-gyp": "^1.0.11",
+-        "node-addon-api": "^5.0.0"
+-      },
+-      "engines": {
+-        "node": ">= 10.0.0"
++    "node_modules/bcryptjs": {
++      "version": "3.0.2",
++      "resolved": "https://registry.npmjs.org/bcryptjs/-/bcryptjs-3.0.2.tgz",
++      "integrity": "sha512-k38b3XOZKv60C4E2hVsXTolJWfkGRMbILBIe2IBITXciy5bOsTKot5kDrf3ZfufQtQOUN5mXceUEpU1rTl9Uog==",
++      "bin": {
++        "bcrypt": "bin/bcrypt"
+       }
+     },
+     "node_modules/bin-version": {
+@@ -5325,6 +5222,7 @@
+       "version": "1.1.11",
+       "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.11.tgz",
+       "integrity": "sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==",
++      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "balanced-match": "^1.0.0",
+@@ -5615,14 +5513,6 @@
+         "url": "https://paulmillr.com/funding/"
+       }
+     },
+-    "node_modules/chownr": {
+-      "version": "2.0.0",
+-      "resolved": "https://registry.npmjs.org/chownr/-/chownr-2.0.0.tgz",
+-      "integrity": "sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==",
+-      "engines": {
+-        "node": ">=10"
+-      }
+-    },
+     "node_modules/chrome-trace-event": {
+       "version": "1.0.4",
+       "resolved": "https://registry.npmjs.org/chrome-trace-event/-/chrome-trace-event-1.0.4.tgz",
+@@ -5806,14 +5696,6 @@
+       "integrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==",
+       "license": "MIT"
+     },
+-    "node_modules/color-support": {
+-      "version": "1.1.3",
+-      "resolved": "https://registry.npmjs.org/color-support/-/color-support-1.1.3.tgz",
+-      "integrity": "sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==",
+-      "bin": {
+-        "color-support": "bin.js"
+-      }
+-    },
+     "node_modules/combined-stream": {
+       "version": "1.0.8",
+       "resolved": "https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz",
+@@ -5867,6 +5749,7 @@
+       "version": "0.0.1",
+       "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
+       "integrity": "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==",
++      "dev": true,
+       "license": "MIT"
+     },
+     "node_modules/concat-stream": {
+@@ -5893,11 +5776,6 @@
+         "node": "^14.18.0 || >=16.10.0"
+       }
+     },
+-    "node_modules/console-control-strings": {
+-      "version": "1.1.0",
+-      "resolved": "https://registry.npmjs.org/console-control-strings/-/console-control-strings-1.1.0.tgz",
+-      "integrity": "sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ=="
+-    },
+     "node_modules/content-disposition": {
+       "version": "0.5.4",
+       "resolved": "https://registry.npmjs.org/content-disposition/-/content-disposition-0.5.4.tgz",
+@@ -6156,11 +6034,6 @@
+         "node": ">=0.4.0"
+       }
+     },
+-    "node_modules/delegates": {
+-      "version": "1.0.0",
+-      "resolved": "https://registry.npmjs.org/delegates/-/delegates-1.0.0.tgz",
+-      "integrity": "sha512-bd2L678uiWATM6m5Z1VzNCErI3jiGzt6HGY8OVICs40JQq/HALfbyNJmp0UDakEY4pMMaN0Ly5om/B1VI/+xfQ=="
+-    },
+     "node_modules/denque": {
+       "version": "2.1.0",
+       "resolved": "https://registry.npmjs.org/denque/-/denque-2.1.0.tgz",
+@@ -6178,14 +6051,6 @@
+         "node": ">= 0.8"
+       }
+     },
+-    "node_modules/detect-libc": {
+-      "version": "2.0.4",
+-      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.0.4.tgz",
+-      "integrity": "sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==",
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+     "node_modules/detect-newline": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/detect-newline/-/detect-newline-3.1.0.tgz",
+@@ -7350,33 +7215,6 @@
+         "node": ">=12"
+       }
+     },
+-    "node_modules/fs-minipass": {
+-      "version": "2.1.0",
+-      "resolved": "https://registry.npmjs.org/fs-minipass/-/fs-minipass-2.1.0.tgz",
+-      "integrity": "sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==",
+-      "dependencies": {
+-        "minipass": "^3.0.0"
+-      },
+-      "engines": {
+-        "node": ">= 8"
+-      }
+-    },
+-    "node_modules/fs-minipass/node_modules/minipass": {
+-      "version": "3.3.6",
+-      "resolved": "https://registry.npmjs.org/minipass/-/minipass-3.3.6.tgz",
+-      "integrity": "sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw==",
+-      "dependencies": {
+-        "yallist": "^4.0.0"
+-      },
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+-    "node_modules/fs-minipass/node_modules/yallist": {
+-      "version": "4.0.0",
+-      "resolved": "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz",
+-      "integrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="
+-    },
+     "node_modules/fs-monkey": {
+       "version": "1.0.6",
+       "resolved": "https://registry.npmjs.org/fs-monkey/-/fs-monkey-1.0.6.tgz",
+@@ -7388,6 +7226,7 @@
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz",
+       "integrity": "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==",
++      "dev": true,
+       "license": "ISC"
+     },
+     "node_modules/fsevents": {
+@@ -7414,50 +7253,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/gauge": {
+-      "version": "3.0.2",
+-      "resolved": "https://registry.npmjs.org/gauge/-/gauge-3.0.2.tgz",
+-      "integrity": "sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==",
+-      "deprecated": "This package is no longer supported.",
+-      "dependencies": {
+-        "aproba": "^1.0.3 || ^2.0.0",
+-        "color-support": "^1.1.2",
+-        "console-control-strings": "^1.0.0",
+-        "has-unicode": "^2.0.1",
+-        "object-assign": "^4.1.1",
+-        "signal-exit": "^3.0.0",
+-        "string-width": "^4.2.3",
+-        "strip-ansi": "^6.0.1",
+-        "wide-align": "^1.1.2"
+-      },
+-      "engines": {
+-        "node": ">=10"
+-      }
+-    },
+-    "node_modules/gauge/node_modules/ansi-regex": {
+-      "version": "5.0.1",
+-      "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz",
+-      "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==",
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+-    "node_modules/gauge/node_modules/signal-exit": {
+-      "version": "3.0.7",
+-      "resolved": "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz",
+-      "integrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="
+-    },
+-    "node_modules/gauge/node_modules/strip-ansi": {
+-      "version": "6.0.1",
+-      "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
+-      "integrity": "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==",
+-      "dependencies": {
+-        "ansi-regex": "^5.0.1"
+-      },
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+     "node_modules/generate-function": {
+       "version": "2.3.1",
+       "resolved": "https://registry.npmjs.org/generate-function/-/generate-function-2.3.1.tgz",
+@@ -7727,11 +7522,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/has-unicode": {
+-      "version": "2.0.1",
+-      "resolved": "https://registry.npmjs.org/has-unicode/-/has-unicode-2.0.1.tgz",
+-      "integrity": "sha512-8Rf9Y83NBReMnx0gFzA8JImQACstCYWUplepDa9xprwwtmgEZUF0h/i5xSA625zB/I37EtrswSST6OXxwaaIJQ=="
+-    },
+     "node_modules/hasown": {
+       "version": "2.0.2",
+       "resolved": "https://registry.npmjs.org/hasown/-/hasown-2.0.2.tgz",
+@@ -7788,18 +7578,6 @@
+         "node": ">=10.19.0"
+       }
+     },
+-    "node_modules/https-proxy-agent": {
+-      "version": "5.0.1",
+-      "resolved": "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-5.0.1.tgz",
+-      "integrity": "sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==",
+-      "dependencies": {
+-        "agent-base": "6",
+-        "debug": "4"
+-      },
+-      "engines": {
+-        "node": ">= 6"
+-      }
+-    },
+     "node_modules/human-signals": {
+       "version": "2.1.0",
+       "resolved": "https://registry.npmjs.org/human-signals/-/human-signals-2.1.0.tgz",
+@@ -7912,6 +7690,7 @@
+       "resolved": "https://registry.npmjs.org/inflight/-/inflight-1.0.6.tgz",
+       "integrity": "sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==",
+       "deprecated": "This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.",
++      "dev": true,
+       "license": "ISC",
+       "dependencies": {
+         "once": "^1.3.0",
+@@ -9428,6 +9207,7 @@
+       "version": "3.1.2",
+       "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.1.2.tgz",
+       "integrity": "sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==",
++      "dev": true,
+       "license": "ISC",
+       "dependencies": {
+         "brace-expansion": "^1.1.7"
+@@ -9454,34 +9234,6 @@
+         "node": ">=16 || 14 >=14.17"
+       }
+     },
+-    "node_modules/minizlib": {
+-      "version": "2.1.2",
+-      "resolved": "https://registry.npmjs.org/minizlib/-/minizlib-2.1.2.tgz",
+-      "integrity": "sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==",
+-      "dependencies": {
+-        "minipass": "^3.0.0",
+-        "yallist": "^4.0.0"
+-      },
+-      "engines": {
+-        "node": ">= 8"
+-      }
+-    },
+-    "node_modules/minizlib/node_modules/minipass": {
+-      "version": "3.3.6",
+-      "resolved": "https://registry.npmjs.org/minipass/-/minipass-3.3.6.tgz",
+-      "integrity": "sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw==",
+-      "dependencies": {
+-        "yallist": "^4.0.0"
+-      },
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+-    "node_modules/minizlib/node_modules/yallist": {
+-      "version": "4.0.0",
+-      "resolved": "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz",
+-      "integrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="
+-    },
+     "node_modules/mkdirp": {
+       "version": "0.5.6",
+       "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.6.tgz",
+@@ -9639,11 +9391,6 @@
+       "dev": true,
+       "license": "MIT"
+     },
+-    "node_modules/node-addon-api": {
+-      "version": "5.1.0",
+-      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-5.1.0.tgz",
+-      "integrity": "sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA=="
+-    },
+     "node_modules/node-domexception": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz",
+@@ -9706,20 +9453,6 @@
+       "dev": true,
+       "license": "MIT"
+     },
+-    "node_modules/nopt": {
+-      "version": "5.0.0",
+-      "resolved": "https://registry.npmjs.org/nopt/-/nopt-5.0.0.tgz",
+-      "integrity": "sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==",
+-      "dependencies": {
+-        "abbrev": "1"
+-      },
+-      "bin": {
+-        "nopt": "bin/nopt.js"
+-      },
+-      "engines": {
+-        "node": ">=6"
+-      }
+-    },
+     "node_modules/normalize-path": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz",
+@@ -9756,18 +9489,6 @@
+         "node": ">=8"
+       }
+     },
+-    "node_modules/npmlog": {
+-      "version": "5.0.1",
+-      "resolved": "https://registry.npmjs.org/npmlog/-/npmlog-5.0.1.tgz",
+-      "integrity": "sha512-AqZtDUWOMKs1G/8lwylVjrdYgqA4d9nu8hc+0gzRxlDb1I10+FHBGMXs6aiQHFdCUUlqH99MUMuLfzWDNDtfxw==",
+-      "deprecated": "This package is no longer supported.",
+-      "dependencies": {
+-        "are-we-there-yet": "^2.0.0",
+-        "console-control-strings": "^1.1.0",
+-        "gauge": "^3.0.0",
+-        "set-blocking": "^2.0.0"
+-      }
+-    },
+     "node_modules/object-assign": {
+       "version": "4.1.1",
+       "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+@@ -10106,6 +9827,7 @@
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz",
+       "integrity": "sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==",
++      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.10.0"
+@@ -10738,41 +10460,6 @@
+         "node": ">=0.10.0"
+       }
+     },
+-    "node_modules/rimraf": {
+-      "version": "3.0.2",
+-      "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz",
+-      "integrity": "sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==",
+-      "deprecated": "Rimraf versions prior to v4 are no longer supported",
+-      "dependencies": {
+-        "glob": "^7.1.3"
+-      },
+-      "bin": {
+-        "rimraf": "bin.js"
+-      },
+-      "funding": {
+-        "url": "https://github.com/sponsors/isaacs"
+-      }
+-    },
+-    "node_modules/rimraf/node_modules/glob": {
+-      "version": "7.2.3",
+-      "resolved": "https://registry.npmjs.org/glob/-/glob-7.2.3.tgz",
+-      "integrity": "sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==",
+-      "deprecated": "Glob versions prior to v9 are no longer supported",
+-      "dependencies": {
+-        "fs.realpath": "^1.0.0",
+-        "inflight": "^1.0.4",
+-        "inherits": "2",
+-        "minimatch": "^3.1.1",
+-        "once": "^1.3.0",
+-        "path-is-absolute": "^1.0.0"
+-      },
+-      "engines": {
+-        "node": "*"
+-      },
+-      "funding": {
+-        "url": "https://github.com/sponsors/isaacs"
+-      }
+-    },
+     "node_modules/router": {
+       "version": "2.2.0",
+       "resolved": "https://registry.npmjs.org/router/-/router-2.2.0.tgz",
+@@ -10984,11 +10671,6 @@
+         "node": ">= 18"
+       }
+     },
+-    "node_modules/set-blocking": {
+-      "version": "2.0.0",
+-      "resolved": "https://registry.npmjs.org/set-blocking/-/set-blocking-2.0.0.tgz",
+-      "integrity": "sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw=="
+-    },
+     "node_modules/setprototypeof": {
+       "version": "1.2.0",
+       "resolved": "https://registry.npmjs.org/setprototypeof/-/setprototypeof-1.2.0.tgz",
+@@ -11589,22 +11271,6 @@
+         "node": ">=6"
+       }
+     },
+-    "node_modules/tar": {
+-      "version": "6.2.1",
+-      "resolved": "https://registry.npmjs.org/tar/-/tar-6.2.1.tgz",
+-      "integrity": "sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==",
+-      "dependencies": {
+-        "chownr": "^2.0.0",
+-        "fs-minipass": "^2.0.0",
+-        "minipass": "^5.0.0",
+-        "minizlib": "^2.1.1",
+-        "mkdirp": "^1.0.3",
+-        "yallist": "^4.0.0"
+-      },
+-      "engines": {
+-        "node": ">=10"
+-      }
+-    },
+     "node_modules/tar-stream": {
+       "version": "3.1.7",
+       "resolved": "https://registry.npmjs.org/tar-stream/-/tar-stream-3.1.7.tgz",
+@@ -11617,30 +11283,6 @@
+         "streamx": "^2.15.0"
+       }
+     },
+-    "node_modules/tar/node_modules/minipass": {
+-      "version": "5.0.0",
+-      "resolved": "https://registry.npmjs.org/minipass/-/minipass-5.0.0.tgz",
+-      "integrity": "sha512-3FnjYuehv9k6ovOEbyOswadCDPX1piCfhV8ncmYtHOjuPwylVWsghTLo7rabjC3Rx5xD4HDx8Wm1xnMF7S5qFQ==",
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+-    "node_modules/tar/node_modules/mkdirp": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz",
+-      "integrity": "sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==",
+-      "bin": {
+-        "mkdirp": "bin/cmd.js"
+-      },
+-      "engines": {
+-        "node": ">=10"
+-      }
+-    },
+-    "node_modules/tar/node_modules/yallist": {
+-      "version": "4.0.0",
+-      "resolved": "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz",
+-      "integrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="
+-    },
+     "node_modules/terser": {
+       "version": "5.39.0",
+       "resolved": "https://registry.npmjs.org/terser/-/terser-5.39.0.tgz",
+@@ -12861,14 +12503,6 @@
+         "node": ">= 8"
+       }
+     },
+-    "node_modules/wide-align": {
+-      "version": "1.1.5",
+-      "resolved": "https://registry.npmjs.org/wide-align/-/wide-align-1.1.5.tgz",
+-      "integrity": "sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==",
+-      "dependencies": {
+-        "string-width": "^1.0.2 || 2 || 3 || 4"
+-      }
+-    },
+     "node_modules/word-wrap": {
+       "version": "1.2.5",
+       "resolved": "https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.5.tgz",
+diff --git a/package.json b/package.json
+index 6b679e8..d61e349 100644
+--- a/package.json
++++ b/package.json
+@@ -28,7 +28,7 @@
+     "@nestjs/platform-express": "^11.0.1",
+     "@nestjs/typeorm": "^11.0.0",
+     "axios": "^1.9.0",
+-    "bcrypt": "^5.1.1",
++    "bcryptjs": "^3.0.2",
+     "mysql2": "^3.14.1",
+     "openai": "^4.97.0",
+     "passport": "^0.7.0",
+@@ -47,7 +47,6 @@
+     "@swc/cli": "^0.6.0",
+     "@swc/core": "^1.10.7",
+     "@types/axios": "^0.14.4",
+-    "@types/bcrypt": "^5.0.2",
+     "@types/express": "^5.0.0",
+     "@types/jest": "^29.5.14",
+     "@types/node": "^22.10.7",
+diff --git a/src/app.module.ts b/src/app.module.ts
+index c36cbe1..6752277 100644
+--- a/src/app.module.ts
++++ b/src/app.module.ts
+@@ -4,9 +4,13 @@ import { AppService } from './app.service';
+ import { OpenAIModule } from './openai/openai.module';
+ import { ConfigModule } from '@nestjs/config';
+ import { TypeOrmModule } from '@nestjs/typeorm';
+-import { UserModule } from './user/user.module';
++import { UserModule } from './users/users.module';
+ import { AuthModule } from './auth/auth.module';
+-import { User } from './user/user.entity';
++import { User } from './users/user.entity';
++import { ChatSessionModule } from './chat-sessions/chat-sessions.module';
++import { ChatMessageModule } from './chat-messages/chat-messages.module';
++import { ChatMessage } from './chat-messages/chat-message.entity';
++import { ChatSession } from './chat-sessions/chat-session.entity';
+ 
+ @Module({
+   imports: [
+@@ -21,7 +25,7 @@ import { User } from './user/user.entity';
+       username: 'root',
+       password: process.env.DB_ROOT_PW,
+       database: process.env.DB_NAME,
+-      entities: [User],
++      entities: [User, ChatMessage, ChatSession],
+ 
+       //entity로, 테이블을 자동으로 생성하고, 업데이트함.
+       synchronize: true,
+@@ -29,7 +33,9 @@ import { User } from './user/user.entity';
+ 
+     OpenAIModule,
+     UserModule,
+-    // AuthModule,
++    ChatSessionModule,
++    ChatMessageModule,
++    AuthModule,
+   ],
+   controllers: [AppController],
+   providers: [AppService],
+diff --git a/src/auth/auth-user.decorator.ts b/src/auth/auth-user.decorator.ts
+new file mode 100644
+index 0000000..d6d3b39
+--- /dev/null
++++ b/src/auth/auth-user.decorator.ts
+@@ -0,0 +1,21 @@
++// user.decorator.ts
++import {
++  createParamDecorator,
++  ExecutionContext,
++  UnauthorizedException,
++} from '@nestjs/common';
++import { Request } from 'express';
++import { IPayLoad } from 'src/commons/interfaces/interfaces';
++
++export const User = createParamDecorator(
++  (data: unknown, ctx: ExecutionContext) => {
++    const request: Request & { user: IPayLoad } = ctx
++      .switchToHttp()
++      .getRequest();
++
++    if (!request.user) {
++      throw new UnauthorizedException('User not found in request.');
++    }
++    return request.user;
++  },
++);
+diff --git a/src/auth/auth.controller.ts b/src/auth/auth.controller.ts
+index 7bad7f8..2a07e45 100644
+--- a/src/auth/auth.controller.ts
++++ b/src/auth/auth.controller.ts
+@@ -5,29 +5,62 @@ import {
+   Body,
+   Req,
+   UnauthorizedException,
++  Headers,
+ } from '@nestjs/common';
+-import { AuthGuard } from '@nestjs/passport';
+ import { LocalAuthGuard } from './guards/local-auth.guard';
+ import { Request } from 'express';
++import { AuthService } from './auth.service';
++import axios from 'axios';
+ import { JwtAuthGuard } from './guards/jwt-auth.guard';
+-import { constrainedMemory } from 'process';
+-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+-import { UserService } from 'src/user/user.service';
++import { User } from './auth-user.decorator';
+ import { IPayLoad } from 'src/commons/interfaces/interfaces';
+-import { AuthService } from './auth.service';
++import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
+ 
+ @Controller('auth')
+ export class AuthController {
+-  constructor(private readonly authService: AuthService) {}
++  constructor(
++    private readonly authService: AuthService,
++    private readonly jwtService: JwtService,
++  ) {}
+ 
+   @UseGuards(LocalAuthGuard)
+-  @Post('local/login')
++  @Post('local-login')
+   async localLogin(@Body() body: { email: string; password: string | null }) {
+     return this.authService.getTokensByEmail({ email: body.email });
+   }
+ 
+-  @Post('oauth/login')
+-  async oauthLogin(@Req() req: Request) {}
++  //header에다가, 'provider' : 'kakao' | 'google'
++  @Post('oauth-login')
++  async oauthLogin(@Req() req: Request) {
++    const oauthAceessToken = req.headers['Authorization'];
++    const provider = req.headers['provider'];
++
++    if (provider == null) {
++      throw new UnauthorizedException('Provider element should be offered');
++    }
++
++    if (oauthAceessToken == null) {
++      throw new UnauthorizedException('Null value has been dectected');
++    }
++
++    if (provider === 'kakao') {
++      try {
++        const response = await axios.get('https://kapi.kakao.com/v2/user/me', {
++          headers: {
++            Authorization: `Bearer ${oauthAceessToken as string}`,
++            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
++          },
++        });
++
++        //테스트해야함. response 형식.
++        console.log(response);
++      } catch (error) {
++        throw new UnauthorizedException(error);
++      }
++    } else {
++      //google..
++    }
++  }
+ 
+   @Post('restore')
+   async restore(@Req() req: Request) {
+@@ -38,4 +71,24 @@ export class AuthController {
+ 
+     return this.authService.restoreAccessToken({ refreshToken: token });
+   }
++
++  @Post('login/test')
++  localLoginTest(@Headers('Authorization') token: string | null) {
++    if (token == null) throw new UnauthorizedException('Toen is went wrong');
++    const accessToken = token.replace('Bearer ', '');
++
++    try {
++      this.jwtService.verify(accessToken, {
++        secret: process.env.JWT_SECRET_KEY,
++      });
++    } catch (error) {
++      if (error instanceof TokenExpiredError) {
++        throw error;
++      } else {
++        throw new JsonWebTokenError('Wrong Token');
++      }
++    }
++
++    return { valid: true };
++  }
+ }
+diff --git a/src/auth/auth.module.ts b/src/auth/auth.module.ts
+index 4fb6d12..529ad20 100644
+--- a/src/auth/auth.module.ts
++++ b/src/auth/auth.module.ts
+@@ -2,9 +2,13 @@ import { Module } from '@nestjs/common';
+ import { PassportModule } from '@nestjs/passport';
+ import { AuthService } from './auth.service';
+ import { LocalStrategy } from './local.strategy';
+-import { UserModule } from '../user/user.module';
+-import { UserService } from 'src/user/user.service';
++import { UserModule } from '../users/users.module';
++import { UserService } from 'src/users/users.service';
+ import { JwtModule } from '@nestjs/jwt';
++import { TypeOrmModule } from '@nestjs/typeorm';
++import { User } from 'src/users/user.entity';
++import { AuthController } from './auth.controller';
++import { JwtStrategy } from './jwt.strategy';
+ 
+ @Module({
+   imports: [
+@@ -14,7 +18,14 @@ import { JwtModule } from '@nestjs/jwt';
+       secret: process.env.JWT_SECRET_KEY,
+       signOptions: { expiresIn: '3h' },
+     }),
++
++    //UserRepository를 사용하려면, 등록해주어야 한다.
++    TypeOrmModule.forFeature([User]),
++
++    PassportModule,
+   ],
+-  providers: [AuthService, LocalStrategy, UserService],
++  controllers: [AuthController],
++  providers: [AuthService, UserService, LocalStrategy, JwtStrategy],
++  exports: [JwtModule],
+ })
+ export class AuthModule {}
+diff --git a/src/auth/auth.service.ts b/src/auth/auth.service.ts
+index 215ae79..dc5c292 100644
+--- a/src/auth/auth.service.ts
++++ b/src/auth/auth.service.ts
+@@ -1,8 +1,8 @@
+ // src/auth/auth.service.ts
+ import { Injectable, UnauthorizedException } from '@nestjs/common';
+-import { UserService } from '../user/user.service';
++import { UserService } from '../users/users.service';
+ 
+-import * as bcrypt from 'bcrypt';
++import * as bcrypt from 'bcryptjs';
+ import {
+   IEmail,
+   IEmailandPassword,
+@@ -10,7 +10,7 @@ import {
+   IPayLoad,
+   ITokens,
+ } from 'src/commons/interfaces/interfaces';
+-import { User } from 'src/user/user.entity';
++import { User } from 'src/users/user.entity';
+ import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+ 
+ @Injectable()
+@@ -70,15 +70,16 @@ export class AuthService {
+     const payload: IPayLoad = {
+       sub: user.id,
+       name: user.username,
++      provider: user.provider,
+     };
+ 
+     const accessToken = this.jwtService.sign(payload, {
+-      secret: process.env.JWT_ACCESS_SECRET,
++      secret: process.env.JWT_SECRET_KEY!,
+       expiresIn: '3h',
+     });
+ 
+     const refreshToken = this.jwtService.sign(payload, {
+-      secret: process.env.JWT_REFRESH_SECRET,
++      secret: process.env.JWT_SECRET_KEY!,
+       expiresIn: '7d',
+     });
+ 
+@@ -94,15 +95,16 @@ export class AuthService {
+     const payload: IPayLoad = {
+       sub: user.id,
+       name: user.username,
++      provider: user.provider,
+     };
+ 
+     const accessToken = this.jwtService.sign(payload, {
+-      secret: process.env.JWT_ACCESS_SECRET,
++      secret: process.env.JWT_SECRET_KEY!,
+       expiresIn: '3h',
+     });
+ 
+     const refreshToken = this.jwtService.sign(payload, {
+-      secret: process.env.JWT_REFRESH_SECRET,
++      secret: process.env.JWT_SECRET_KEY!,
+       expiresIn: '7d',
+     });
+ 
+diff --git a/src/auth/jwt.strategy.ts b/src/auth/jwt.strategy.ts
+index aa1c6db..e4e99fa 100644
+--- a/src/auth/jwt.strategy.ts
++++ b/src/auth/jwt.strategy.ts
+@@ -8,7 +8,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
+ import { IPayLoad } from 'src/commons/interfaces/interfaces';
+ 
+ @Injectable()
+-export class JwtStrategy extends PassportStrategy(Strategy) {
++export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+   constructor() {
+     super({
+       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+@@ -31,11 +31,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
+ 
+       throw new UnauthorizedException('Invalid access token');
+     }
++
++    if (user == null) {
++      throw new UnauthorizedException('There is no AccessToken in headers');
++    }
++
+     return user;
+   }
+ 
+   validate(payload: IPayLoad) {
+-    return { userId: payload.sub, username: payload.name };
++    return {
++      userId: payload.sub,
++      username: payload.name,
++      provider: payload.provider,
++    };
+   }
+ }
+ 
+diff --git a/src/auth/local.strategy.ts b/src/auth/local.strategy.ts
+index 5e22594..4c54053 100644
+--- a/src/auth/local.strategy.ts
++++ b/src/auth/local.strategy.ts
+@@ -2,10 +2,10 @@ import { Strategy } from 'passport-local';
+ import { PassportStrategy } from '@nestjs/passport';
+ import { Injectable, UnauthorizedException } from '@nestjs/common';
+ import { AuthService } from './auth.service';
+-import { User } from 'src/user/user.entity';
++import { User } from 'src/users/user.entity';
+ 
+ @Injectable()
+-export class LocalStrategy extends PassportStrategy(Strategy) {
++export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
+   constructor(private authService: AuthService) {
+     super({ usernameField: 'email' });
+   }
+diff --git a/src/auth/strategies/auth-authorization.decorator.ts b/src/auth/strategies/auth-authorization.decorator.ts
+new file mode 100644
+index 0000000..e69de29
+diff --git a/src/chat-messages/chat-message.entity.ts b/src/chat-messages/chat-message.entity.ts
+new file mode 100644
+index 0000000..d2b5743
+--- /dev/null
++++ b/src/chat-messages/chat-message.entity.ts
+@@ -0,0 +1,29 @@
++import { session } from 'passport';
++import { ChatSession } from 'src/chat-sessions/chat-session.entity';
++import {
++  Column,
++  CreateDateColumn,
++  Entity,
++  Index,
++  ManyToOne,
++  PrimaryGeneratedColumn,
++} from 'typeorm';
++
++@Entity('chat_messages')
++export class ChatMessage {
++  @PrimaryGeneratedColumn()
++  id: number;
++
++  @Column({ type: 'varchar', length: 12 })
++  role: 'assistant' | 'system' | 'user';
++
++  @Column({ type: 'text' })
++  text: string;
++
++  @CreateDateColumn()
++  createdAt: Date;
++
++  @Index()
++  @ManyToOne(() => ChatSession, (session) => session.messages)
++  session: ChatSession;
++}
+diff --git a/src/chat-messages/chat-messages.controller.ts b/src/chat-messages/chat-messages.controller.ts
+new file mode 100644
+index 0000000..5562d2a
+--- /dev/null
++++ b/src/chat-messages/chat-messages.controller.ts
+@@ -0,0 +1,101 @@
++import {
++  Controller,
++  Get,
++  Param,
++  Query,
++  NotFoundException,
++  UseGuards,
++  ParseIntPipe,
++  Req,
++  UnauthorizedException,
++} from '@nestjs/common';
++import { ChatMessagesService } from './chat-messages.service';
++import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
++import { ChatMessage } from './chat-message.entity';
++import { ChatSessionsService } from 'src/chat-sessions/chat-sessions.service';
++import { IPayLoad } from 'src/commons/interfaces/interfaces';
++import { UserService } from 'src/users/users.service';
++import { User } from 'src/auth/auth-user.decorator';
++
++@Controller('chat-messages')
++export class ChatMessagesController {
++  constructor(
++    private readonly chatMessagesService: ChatMessagesService,
++    private readonly chatSessionsService: ChatSessionsService,
++    private readonly userService: UserService,
++  ) {}
++
++  @UseGuards(JwtAuthGuard)
++  @Get('session/:sessionId')
++  async getAllMessagesBySession(
++    @Param('sessionId', ParseIntPipe) sessionId: number,
++  ): Promise<ChatMessage[]> {
++    const session = await this.chatSessionsService.findById({ id: sessionId });
++    if (!session) throw new NotFoundException('Session not found');
++
++    return this.chatMessagesService.findAllBySession({ session });
++  }
++
++  // 최근 N개 메시지 조회
++  @Get('session/:sessionId/recent')
++  async getRecentMessagesBySession(
++    @Param('sessionId', ParseIntPipe) sessionId: number,
++    @Query('count', ParseIntPipe) count: number = 10,
++  ): Promise<ChatMessage[]> {
++    const session = await this.chatSessionsService.findById({ id: sessionId });
++    if (!session) throw new NotFoundException('Session not found');
++
++    return this.chatMessagesService.findRecentMessages({
++      session,
++      count,
++    });
++  }
++
++  //마지막 세션에서, mesasge count개 조회
++  @UseGuards(JwtAuthGuard)
++  @Get('my/recent-messages')
++  async getRecentMessagesFromLatestSession(
++    @User() payload: IPayLoad,
++    @Query('limit', ParseIntPipe) limit: number = 10,
++  ): Promise<ChatMessage[]> {
++    const user = await this.userService.findById({ id: payload.sub });
++
++    if (user == null)
++      throw new NotFoundException('Jwt Token is something went...');
++
++    const latestSession = await this.chatSessionsService.findMostRecentByUser({
++      user,
++    });
++
++    if (!latestSession)
++      throw new NotFoundException('There are no sessions from this user');
++
++    return this.chatMessagesService.findRecentMessages({
++      session: latestSession,
++      count: limit,
++    });
++  }
++
++  //마지막 세션에서 모든 메세지 반환
++  @UseGuards(JwtAuthGuard)
++  @Get('my/messages')
++  async getAllMessagesFromLatestSession(
++    @User() payload: IPayLoad,
++  ): Promise<ChatMessage[]> {
++    const user = await this.userService.findById({ id: payload.sub });
++
++    if (user == null)
++      throw new UnauthorizedException('Jwt Token is something went...');
++
++    const latestSession = await this.chatSessionsService.findMostRecentByUser({
++      user,
++    });
++
++    if (!latestSession)
++      throw new NotFoundException('There are no sessions from this user');
++
++    return this.chatMessagesService.findAllBySession({
++      session: latestSession,
++    });
++  }
++}
+diff --git a/src/chat-messages/chat-messages.module.ts b/src/chat-messages/chat-messages.module.ts
+new file mode 100644
+index 0000000..a4aac87
+--- /dev/null
++++ b/src/chat-messages/chat-messages.module.ts
+@@ -0,0 +1,16 @@
++import { Module } from '@nestjs/common';
++import { TypeOrmModule } from '@nestjs/typeorm';
++import { ChatMessagesController } from './chat-messages.controller';
++import { ChatMessagesService } from './chat-messages.service';
++import { ChatSessionsService } from 'src/chat-sessions/chat-sessions.service';
++import { UserService } from 'src/users/users.service';
++import { ChatSession } from 'src/chat-sessions/chat-session.entity';
++import { ChatMessage } from './chat-message.entity';
++import { User } from 'src/users/user.entity';
++
++@Module({
++  imports: [TypeOrmModule.forFeature([User, ChatSession, ChatMessage])],
++  controllers: [ChatMessagesController],
++  providers: [UserService, ChatSessionsService, ChatMessagesService],
++})
++export class ChatMessageModule {}
+diff --git a/src/chat-messages/chat-messages.service.ts b/src/chat-messages/chat-messages.service.ts
+new file mode 100644
+index 0000000..68cf79f
+--- /dev/null
++++ b/src/chat-messages/chat-messages.service.ts
+@@ -0,0 +1,52 @@
++import { Injectable } from '@nestjs/common';
++import { InjectRepository } from '@nestjs/typeorm';
++import { ChatMessage } from './chat-message.entity';
++import { Repository } from 'typeorm';
++import {
++  ICreateMessage,
++  IFindAllBySession,
++  IFindRecentMessages,
++} from './dto/chat-messages-service.interface';
++import { ChatSession } from 'src/chat-sessions/chat-session.entity';
++
++@Injectable()
++export class ChatMessagesService {
++  constructor(
++    @InjectRepository(ChatMessage)
++    private readonly messageRepository: Repository<ChatMessage>,
++  ) {}
++
++  // 특정 세션의 모든 메시지 가져오기
++  async findAllBySession({
++    session,
++  }: IFindAllBySession): Promise<ChatMessage[]> {
++    return this.messageRepository.find({
++      where: { session },
++      order: { createdAt: 'ASC' }, // 시간순 정렬
++    });
++  }
++
++  // 특정 세션의 최근 N개 메시지 가져오기
++  async findRecentMessages({
++    session,
++    count,
++  }: IFindRecentMessages): Promise<ChatMessage[]> {
++    return this.messageRepository
++      .find({
++        where: { session },
++        order: { createdAt: 'DESC' },
++        take: count,
++      })
++      .then((messages) => messages.reverse());
++  }
++
++  async createMessage({ session, text, role }: ICreateMessage) {
++    const newMessage = this.messageRepository.create({
++      session,
++      text,
++      role,
++    });
++
++    return this.messageRepository.save(newMessage);
++  }
++}
+diff --git a/src/chat-messages/dto/chat-messages-service.interface.ts b/src/chat-messages/dto/chat-messages-service.interface.ts
+new file mode 100644
+index 0000000..38cb5af
+--- /dev/null
++++ b/src/chat-messages/dto/chat-messages-service.interface.ts
+@@ -0,0 +1,17 @@
++import { ChatSession } from 'src/chat-sessions/chat-session.entity';
++import { ChatMessage } from '../chat-message.entity';
++
++export interface IFindAllBySession {
++  session: ChatSession;
++}
++
++export interface IFindRecentMessages {
++  session: ChatSession;
++  count: number;
++}
++
++export interface ICreateMessage {
++  session: ChatSession;
++  text: string;
++  role: ChatMessage['role'];
++}
+diff --git a/src/chat-sessions/chat-session.entity.ts b/src/chat-sessions/chat-session.entity.ts
+new file mode 100644
+index 0000000..9f0dbe1
+--- /dev/null
++++ b/src/chat-sessions/chat-session.entity.ts
+@@ -0,0 +1,24 @@
++import { ChatMessage } from 'src/chat-messages/chat-message.entity';
++import { User } from 'src/users/user.entity';
++import {
++  CreateDateColumn,
++  Entity,
++  ManyToOne,
++  OneToMany,
++  PrimaryGeneratedColumn,
++} from 'typeorm';
++
++@Entity('chat_sessions')
++export class ChatSession {
++  @PrimaryGeneratedColumn()
++  id: number;
++
++  @ManyToOne(() => User, (user) => user.sessions)
++  user: User;
++
++  @CreateDateColumn()
++  createdAt: Date;
++
++  @OneToMany(() => ChatMessage, (message) => message.session)
++  messages: ChatMessage[];
++}
+diff --git a/src/chat-sessions/chat-sessions.controller.ts b/src/chat-sessions/chat-sessions.controller.ts
+new file mode 100644
+index 0000000..8d9e793
+--- /dev/null
++++ b/src/chat-sessions/chat-sessions.controller.ts
+@@ -0,0 +1,80 @@
+ns')
++export class ChatSessionsController {
++  constructor(
++    private readonly chatSessionsService: ChatSessionsService,
++    private readonly usersService: UserService,
++  ) {}
++
++  @UseGuards(JwtAuthGuard)
++  @Get()
++  async getAllSessions(@User() payload: IPayLoad): Promise<ChatSession[]> {
++    const user = await this.usersService.findById({ id: payload.sub });
++
++    //JwtAuthGuard를 통과한 것이라, user는 무조건 있을 것으로 예상된다.
++    if (!user) throw new NotFoundException('User not found');
++
++    return this.chatSessionsService.findAllByUser({ user });
++  }
++
++  // 유저의 최근 N개의 세션
++  @UseGuards(JwtAuthGuard)
++  @Get('recent')
++  async getRecentSessions(
++    @Query('count', ParseIntPipe) count: number = 5,
++    @User() payload: IPayLoad,
++  ): Promise<ChatSession[]> {
++    const user = await this.usersService.findById({ id: payload.sub });
++
++    //JwtAuthGuard를 통과한 것이라, user는 무조건 있을 것으로 예상된다.
++    if (!user) throw new NotFoundException('User not found');
++
++    return this.chatSessionsService.findRecentSessionsByUser({
++      user,
++      count,
++    });
++  }
++
++  // 유저의 가장 최근 세션
++  @UseGuards(JwtAuthGuard)
++  @Get('latest')
++  async getMostRecentSession(@User() payload: IPayLoad): Promise<ChatSession> {
++    const user = await this.usersService.findById({ id: payload.sub });
++    if (!user) throw new NotFoundException('User not found');
++
++    const session = await this.chatSessionsService.findMostRecentByUser({
++      user,
++    });
++    if (!session) throw new NotFoundException('No sessions found');
++
++    return session;
++  }
++
++  @UseGuards(JwtAuthGuard)
++  @Post()
++  async createNewSession(@User() payload: IPayLoad) {
++    const user = await this.usersService.findById({ id: payload.sub });
++    if (user == null)
++      throw new UnauthorizedException('User is Not Exist in DB');
++
++    return this.chatSessionsService.createSessionForUser({ user });
++  }
++}ervice } from 'src/chat-messages/chat-messages.service';
++
++@Module({
++  imports: [TypeOrmModule.forFeature([User, ChatSession, ChatMessage])],
++  controllers: [ChatSessionsController],
++  providers: [UserService, ChatSessionsService, ChatMessagesService],
++})
++export class
++++ b/
++@Injectable()
++export class ChatSessionsService {
++  constructor(
++    @InjectRepository(ChatSession)
++    private readonly sessionRepository: Repository<ChatSession>,
++    @InjectRepository(ChatMessage)
++    private readonly messageRepository: Repository<ChatMessage>,
++
++    private readonly chatMessageService: ChatMessagesService,
++  ) {}
++
++  async findById({ id }: { id: number }) {
++    return this.sessionRepository.findOne({ where: { id } });
++  }
++
++  // 가장 최근의 세션 하나
++  async findMostRecentByUser({ user }: IUser): Promise<ChatSession | null> {
++    return this.sessionRepository.findOne({
++      where: { user: { id: user.id } },
++      order: { createdAt: 'DESC' },
++      relations: ['messages'], // 필요 시
++    });
++  }
++
++  // 최근 N개의 세션
++  async findRecentSessionsByUser({
++    user,
++    count,
++  }: IFindRecentSessionsByUser): Promise<ChatSession[]> {
++    return this.sessionRepository.find({
++      where: { user: { id: user.id } },
++      order: { createdAt: 'DESC' },
++      take: count,
++      // relations: ['messages'], // 필요 시
++    });
++  }
++
++  // 유저의 모든 세션
++  async findAllByUser({ user }: IUser): Promise<ChatSession[]> {
++    return this.sessionRepository.find({
++      where: { user: { id: user.id } },
++      order: { createdAt: 'DESC' },
++      relations: ['messages'], // 필요 시
++    });
++  }
++
++  async createSessionForUser({ user }: { user: User }): Promise<ChatSession> {
++    const instance = this.sessionRepository.create({ user }); // 엔티티 인스턴스 생성
++    const session: ChatSession = await this.sessionRepository.save(instance); // 저장 및 반환
++    const prompted: string =
++      '너는 무조건 JSON형식으로만 응답해야 한다. 형식은 다음과 같다. {"asking": 1 | 0, "message" : "너의 응답을 이곳에 작성하면 된다." } 너는 LLM기반 일기 Assistance 앱의 모델이고, 너는 사용자가 하루동안 무엇을 했는지, 꼼꼼하게 질문한 후, 최종적으로 1인칭 시점의 일기를 작성해주면 된다. 물어볼 때는 JSON 형식에 asking : 1 을 기입하고, 최종적으로 일기를 다 작성하면 asking : 0을 작성하고 message에 최종적 일기를 작성하면 된다. ';
++
++    await this.chatMessageService.createMessage({
++      role: 'system',
++      text: prompted,
++      session,
++    });
++
++    return session;
++  }
++}erfaces/interfaces.ts
+@@ -15,6 +15,7 @@ export interface ITokens {
+ export interface IPayLoad {
+   sub: string;
+   name: string;
++  provider: 'kakao' | 'google' | 'local';
+ }
+ 
+ export interface IID {
+diff,8 @@
+-export class ChatMessage {
++export class AIRequestMessage {
+   role: 'user' | 'assistant' | 'system';
+   content: string;
+ }
+ 
+-ex @@
++export class SendMessageDto {
++  role: 'system' | 'assistant' | 'user';
++  state: 'asking' | 'done';
++  message: string;
++}
++
++export class ResponseMessageDto {
++  asking: 1 | 0;
++  message: string;
++}
+di
+ @Controller('openai')
+ export class OpenAIController {
+-  constructor(private readonly openAiService: OpenAIService) {}
++  constructor(
++    private readonly openAiService: OpenAIService,
++    private readonly userService: UserService,
++    private readonly chatSessionService: ChatSessionsService,
++    private readonly chatMessageService: ChatMessagesService,
++  ) {}
+ 
+-  @Post('sendMessages')
+-  async sendMessages(@Body() chatRequest: ChatRequestDto): Promise<string> {
+-    const response = await this.openAiService.sendMessage(chatRequest);
+-    return JSON.stringify(response);
+-  }
++  @UseGuards(JwtAuthGuard)
++  @Post('send-message')
++  async sendMessage(
++    @User() payload: IPayLoad,
++    @Body() body: { message: string },
++  ): Promise<SendMessageDto> {
++    // 유저의 최근 세션을 찾아서, 최근 세션의 메세지를 다 합쳐서 api쿼리.
++    const user = await this.userService.findById({ id: payload.sub });
++    if (!user)
++      throw new UnauthorizedException(
++        'OpenAI Controller 30line Issue.. this should not be occured',
++      );
++
++    console.log(user);
++
++    const session = await this.chatSessionService.findMostRecentByUser({
++      user,
++    });
++
++    console.log(session);
++
++    if (!session)
++      throw new NotFoundException('There is no session in this account');
++
++    const messages = session.messages;
++    const messageList: AIRequestMessage[] = [];
++    messages.forEach((value) => {
++      messageList.push({ role: value.role, content: value.text });
++    });
++    messageList.push({ role: 'user', content: body.message });
++
++    const result: ChatCompletion = await this.openAiService.sendMessage({
++      messages: messageList,
++    });
++
++    const response = result.choices[0].message;
+ 
+-  @Get('hello')
+-  getHello(): string {
+-    return 'hello';
++    console.log(response);
++
++    await this.chatMessageService.createMessage({
++      session,
++      text: body.message,
++      role: 'user',
++    });
++
++    if (response.content == null) {
++      throw new Error("AI doesn't answered");
++    }
++
++    await this.chatMessageService.createMessage({
++      session,
++      text: response.content,
++      role: 'assistant',
++    });
++
++    console.log(JSON.parse(response.content));
++
++    const object = JSON.parse(response.content) as ResponseMessageDto;
++
++    return {
++      role: 'assistant',
++      state: object.asking == 1 ? 'asking' : 'done',
++      message: response.content,
++    };
+   }
++
++  // 필요 없음.
++  // @Get('messages')
++  // async getMessages(): Promise<GetMessagesDto> {
++  //   //
++  // }
+ }
+diff --git a/src/openai/openai.module.ts b/src/openai/openai.module.ts
+index beb16c8..1f46fad 100644
+--- a/src/openai/openai.module.ts
++++ b/src/openai/openai.module.ts
+
+ @Module({
+-  imports: [],
++  imports: [TypeOrmModule.forFeature([ChatSession, ChatMessage, User])],
+   controllers: [OpenAIController],
+-  providers: [OpenAIService],
++  providers: [
++    OpenAIService,
++    UserService,
++    ChatSessionsService,
++    ChatMessagesService,
++  ],
+ })
+ export class OpenAIModule {}
+diff --git a/src/openai/openai.service.ts b/src/openai/openai.service.ts
+index 9d6d603..39b8c6e 100644
+
+ export class OpenAIService implements OnModuleInit {
+   private openai: OpenAI;
+ 
++  constructor(
++    private readonly chatSessionService: ChatSessionsService,
++    private readonly chatMessageService: ChatMessagesService,
++  ) {}
++
+   onModuleInit() {
+     if (this.openai) return;
+     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+     console.log(process.env.OPEN_API_KEY);
+   }
+ 
+-  async sendMessage({ messages }: ChatRequestDto): Promise<ChatCompletion> {
++  async sendMessageOnSession({
++    message,
++    sessionId,
++  }: {
++    message: string;
++    sessionId: number;
++  }) {
++    // 개발 할 필요가 없는 서비스.
++    // 맨 최근 세션에서만 대화할것임..
++  }
++
++  async sendMessage({ messages }: AIRequestDto): Promise<ChatCompletion> {
+     try {
+       const response: ChatCompletion =
+         await this.openai.chat.completions.create({
+diff --git a/src/user/user.controller.ts b/src/user/user.controller.ts
+deleted file mode 100644
+index a192141..0000000
+--- a/src/user/user.controller.ts
++++ /dev/null
+@@ -1,18 +0,0 @@
+-// src/user/user.controller.ts
+-import { Controller, Get, Post, Body } from '@nestjs/common';
+-import { UserService } from './user.service';
+-
+-@Controller('users')
+-export class UserController {
+-  constructor(private readonly userService: UserService) {}
+-
+-  @Post('create')
+-  async create(@Body() body: { username: string; email: string }) {
+-    return this.userService.createUser(body.username, body.email);
+-  }
+-
+-  @Get()
+-  async getAll() {
+-    return this.userService.getAllUsers();
+-  }
+
+rom 'typeorm/driver/mongodb/bson.typings';
+ 
+ @Entity()
+ export class User {
+   @PrimaryGeneratedColumn('uuid')
+   id: string;
+ 
+-  @Column({ nullable: false, length: 25 })
++  @Column({ nullable: false, length: 25, default: '꿈꿈이' })
+   username: string;
+ 
+   @Column({ unique: true })
+@@ -32,7 +35,7 @@ export class User {
+   @Column({ type: 'varchar', length: 255, nullable: true })
+   profileImage: string | null;
+ 
+-  @Column({ type: 'varchar', length: 20, nullable: true })
++  @Column({ type: 'varchar', length: 65, nullable: true })
+   password: string | null;
+ 
+   //'user' or 'admin' 으로 관리할 것입니다.
+@@ -48,6 +51,9 @@ export class User {
+   @Column({ default: 0 })
+   loginAttempts: number;
+ 
+-  @Column({ type: 'varchar', length: 6, nullable: true })
+-  provider: 'local' | 'google' | 'kakao' | null;
++  @Column({ type: 'varchar', length: 6, default: 'local' })
++  provider: 'local' | 'google' | 'kakao';
++
++  @OneToMany(() => ChatSession, (session) => session.user)
++  sessions: ChatSession[];
+ }
+
++// src/user/user.controller.ts
++import { Controller, Get, Post, Body } from '@nestjs/common';
++import { UserService } from './users.service';
++import { User as Payload } from 'src/auth/auth-user.decorator';
++import { IPayLoad } from 'src/commons/interfaces/interfaces';
++import { User } from './user.entity';
++
++@Controller('users')
++export class UserController {
++  constructor(private readonly userService: UserService) {}
++
++  @Get()
++  async getAll(): Promise<User[]> {
++    return this.userService.getAllUsers();
++  }
++
++  @Get('my')
++  async get(@Payload() payload: IPayLoad): Promise<User | null> {
++    return this.userService.findById({ id: payload.sub });
++  }
++
++  @Post('signup-local')
++  async signUpLocal(@Body() body: { email: string; password: string }) {
++    return this.userService.createUser(body.email, body.password);
++  }
+
+ 
+-  async createUser(username: string, email: string): Promise<User> {
+-    const user = this.userRepository.create({ username, email });
++  async createUser(email: string, password: string): Promise<User> {
++    const prev = await this.findByEmail({ email });
++    if (prev) throw new ConflictException('이미 사용 중인 이메일 입니다.');
++
++    const hashed = await bcrypt.hash(
++      password,
++      parseInt(process.env.SALT_ROUNDS!),
++    );
++
++    const user = this.userRepository.create({ email, password: hashed });
+     return this.userRepository.save(user);
+   }
+ 

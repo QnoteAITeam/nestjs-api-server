@@ -15,6 +15,7 @@ export interface ITokens {
 export interface IPayLoad {
   sub: string;
   name: string;
+  provider: 'kakao' | 'google' | 'local';
 }
 
 export interface IID {

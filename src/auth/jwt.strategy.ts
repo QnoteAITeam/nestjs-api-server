@@ -8,7 +8,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -31,11 +31,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
       throw new UnauthorizedException('Invalid access token');
     }
+
+    if (user == null) {
+      throw new UnauthorizedException('There is no AccessToken in headers');
+    }
+
     return user;
   }
 
   validate(payload: IPayLoad) {
-    return { userId: payload.sub, username: payload.name };
+    return {
+      userId: payload.sub,
+      username: payload.name,
+      provider: payload.provider,
+    };
   }
 }
 

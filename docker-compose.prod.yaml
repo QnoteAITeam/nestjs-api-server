@@ -1,0 +1,65 @@
+version: '3.7'
+
+services:
+  certbot:
+    container_name: certbot
+    build:
+      context: ./certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+
+    environment:
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - CERTBOT_DOMAIN=${CERTBOT_DOMAIN}
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./etc/nginx/conf.d:/etc/nginx
+      #읽기전용 : ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - nestjs-server
+    networks:
+      - backend
+    restart: always
+
+  nestjs-server:
+    build:
+      context: ./
+      dockerfile: dockerfile.prod
+    container_name: nestjs-server
+    # ports:
+    #   - '3000:3000'
+    networks:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - MYSQL_DATABASE_SYNCHRONIZE=false
+    depends_on:
+      - mysql-server
+    restart: always
+    env_file:
+      - .env
+
+  mysql-server:
+    image: mysql:latest
+    container_name: mysql-server
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PW}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # ports:
+    #   - '3306:3306'
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
