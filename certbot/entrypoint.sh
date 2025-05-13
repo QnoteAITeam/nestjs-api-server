@@ -9,7 +9,3 @@ if [ ! -f /etc/letsencrypt/live/api.hy3ons.site/fullchain.pem ]; then
     --no-eff-email \
     -d $CERTBOT_DOMAIN
 fi
-
-# 무한 루프로 컨테이너 유지 (또는 crond로 갱신 작업 등 가능)
-trap exit TERM
-while :; do sleep 12h & wait $!; done
