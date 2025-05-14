@@ -10,7 +10,7 @@ RUN npm install -g @nestjs/cli
 RUN npm install --production
 COPY . .
 
-RUN npm run build
+RUN npm run build --production
 
 #다단계 빌드.. ./dist만들고 파일만 취한다음에, 더 작은 이미지로 갈아타는 것임.
 FROM node:22-alpine AS production
@@ -24,4 +24,5 @@ COPY --from=builder /app/dist ./dist
 RUN npm install -g @nestjs/cli
 RUN npm install --production
 
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "npx typeorm migration:generate -d dist/src/data-source.js src/migrations/InitMigration && npm run migration:run && npm run start:prod"]
+# CMD ["npm", "run", "start:prod"]

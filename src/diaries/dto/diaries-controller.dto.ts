@@ -26,6 +26,6 @@ export interface IUpdate {
 export interface UpdateDiaryDto {
   title?: string;
   content?: string;
-  tags?: Tag[];
-  emotionTags?: EmotionTag[];
+  tags?: string[];
+  emotionTags?: string[];
 }

@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { Diary } from './diary.entitiy';
 import { ICreate, IUpdate } from './dto/diaries-controller.dto';
+import { TagService } from 'src/tags/tags.service';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @InjectRepository(Diary)
-    private diaryRepository: Repository<Diary>,
+    private readonly diaryRepository: Repository<Diary>,
+    private readonly tagService: TagService,
   ) {}
 
   async create({
@@ -89,12 +91,23 @@ export class DiaryService {
     if (updateData.title !== undefined) diary.title = updateData.title;
     if (updateData.content !== undefined) diary.content = updateData.content;
 
+    const updatedTags = await this.tagService.tagFindOrCreateByNames({
+      user,
+      tags: updateData.tags ?? [],
+    });
+
+    const updatedEmotionTags =
+      await this.tagService.emotionTagFindOrCreateByNames({
+        user,
+        emotionTags: updateData.emotionTags ?? [],
+      });
+
     if (updateData.tags) {
-      diary.tags = updateData.tags;
+      diary.tags = updatedTags;
     }
 
     if (updateData.emotionTags) {
-      diary.emotionTags = updateData.emotionTags;
+      diary.emotionTags = updatedEmotionTags;
     }
 
     return this.diaryRepository.save(diary);
