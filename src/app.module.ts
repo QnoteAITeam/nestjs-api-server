@@ -11,7 +11,7 @@ import { ChatSessionModule } from './chat-sessions/chat-sessions.module';
 import { ChatMessageModule } from './chat-messages/chat-messages.module';
 import { ChatMessage } from './chat-messages/chat-message.entity';
 import { ChatSession } from './chat-sessions/chat-session.entity';
-import { Diary } from './diaries/diary.entitiy';
+import { Diary } from './diaries/diary.entity';
 import { EmotionTag } from './tags/entities/emotion-tag.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { DiaryModule } from './diaries/diaries.module';
@@ -40,8 +40,9 @@ import { UserPassword } from './user-passwords/user-password.entity';
         UserPassword,
       ],
 
-      migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',
-      synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
+      // migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',
+      // synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
+      synchronize: true,
     }),
 
     OpenAIModule,

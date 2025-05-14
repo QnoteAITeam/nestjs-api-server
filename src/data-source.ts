@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
   username: 'root', // DB 계정
   password: process.env.DB_ROOT_PW, // 비밀번호
   database: process.env.DB_NAME, // 사용할 DB 이름
-  entities: ['dist/entities/*.js'], // 엔티티 위치
+  entities: ['dist/**/*.entity.js'], // 엔티티 위치
   migrations: ['dist/migrations/*.js'], // 마이그레이션 파일 위치
 
   migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',

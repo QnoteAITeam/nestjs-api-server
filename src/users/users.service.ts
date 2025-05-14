@@ -10,6 +10,7 @@ import { User } from './user.entity';
 import { IEmail, IID } from 'src/commons/interfaces/interfaces';
 import { UserPasswordService } from 'src/user-passwords/user-passwords.service';
 import { NotFoundError } from 'rxjs';
+import { UserPassword } from 'src/user-passwords/user-password.entity';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,9 @@ export class UserService {
   ) {}
 
   async findByEmail({ email }: IEmail): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({
+      where: { email },
+    });
   }
 
   async findById({ id }: IID): Promise<User | null> {

@@ -23,7 +23,7 @@ import { UserService } from 'src/users/users.service';
 import { TagService } from 'src/tags/tags.service';
 import { DiaryService } from './diaries.service';
 import { get } from 'http';
-import { Diary } from './diary.entitiy';
+import { Diary } from './diary.entity';
 
 @Controller('diaries')
 export class DiariesController {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Diary } from './diary.entitiy';
+import { Diary } from './diary.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { DiaryService } from './diaries.service';

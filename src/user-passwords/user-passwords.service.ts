@@ -22,7 +22,9 @@ export class UserPasswordService {
   ) {}
 
   async getHashedPasswordByUser({ user }: { user: User }) {
-    return this.passwordRepositiry.findOne({ where: { user } });
+    return this.passwordRepositiry.findOne({
+      where: { user: { id: user.id } },
+    });
   }
 
   async matchPasswordByEmail({

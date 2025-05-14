@@ -1,4 +1,4 @@
-import { Diary } from 'src/diaries/diary.entitiy';
+import { Diary } from 'src/diaries/diary.entity';
 import { User } from 'src/users/user.entity';
 import {
   Entity,

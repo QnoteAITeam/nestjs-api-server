@@ -1,5 +1,5 @@
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
-import { Diary } from 'src/diaries/diary.entitiy';
+import { Diary } from 'src/diaries/diary.entity';
 import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { UserPassword } from 'src/user-passwords/user-password.entity';

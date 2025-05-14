@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
-import { Diary } from './diary.entitiy';
+import { Diary } from './diary.entity';
 import { ICreate, IUpdate } from './dto/diaries-controller.dto';
 import { TagService } from 'src/tags/tags.service';
 
@@ -44,7 +44,7 @@ export class DiaryService {
     const skip = (page - 1) * take;
 
     return this.diaryRepository.find({
-      where: { user },
+      where: { user: { id: user.id } },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
       take,
@@ -61,7 +61,7 @@ export class DiaryService {
     count: number;
   }): Promise<Diary[]> {
     return this.diaryRepository.find({
-      where: { user },
+      where: { user: { id: user.id } },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
       take: count,
@@ -71,7 +71,7 @@ export class DiaryService {
   //유저가 작성한 가장 최근 일기를 가져옵니다.
   async findMostRecent(user: User): Promise<Diary | null> {
     return this.diaryRepository.findOne({
-      where: { user },
+      where: { user: { id: user.id } },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
     });
