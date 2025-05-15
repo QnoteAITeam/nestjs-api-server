@@ -23,4 +23,15 @@ export class UserController {
   async signUpLocal(@Body() body: { email: string; password: string }) {
     return this.userService.createUser(body.email, body.password);
   }
+
+  @Post('')
+  async createUser(
+    @Body() body: { email: string; password: string; username: string },
+  ) {
+    return this.userService.createUserWithName(
+      body.email,
+      body.password,
+      body.username,
+    );
+  }
 }

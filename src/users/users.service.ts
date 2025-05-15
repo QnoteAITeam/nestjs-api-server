@@ -47,6 +47,27 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async createUserWithName(
+    email: string,
+    password: string,
+    username: string,
+  ): Promise<User> {
+    const prev = await this.findByEmail({ email });
+    if (prev) throw new ConflictException('이미 사용 중인 이메일 입니다.');
+
+    const passwordEntity = await this.userPasswordService.createPassword({
+      rawPassword: password,
+    });
+
+    const user = this.userRepository.create({
+      email,
+      username,
+      password: passwordEntity,
+    });
+
+    return this.userRepository.save(user);
+  }
+
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();
   }

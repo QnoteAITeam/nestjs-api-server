@@ -59,12 +59,9 @@ export class ChatSessionService {
   async createSessionForUser({ user }: { user: User }): Promise<ChatSession> {
     const instance = this.sessionRepository.create({ user }); // 엔티티 인스턴스 생성
     const session: ChatSession = await this.sessionRepository.save(instance); // 저장 및 반환
-    const prompted: string =
-      '너는 무조건 JSON형식으로만 응답해야 한다. 형식은 다음과 같다. {"asking": 1 | 0, "message" : "너의 응답을 이곳에 작성하면 된다." } 너는 LLM기반 일기 Assistance 앱의 모델이고, 너는 사용자가 하루동안 무엇을 했는지, 꼼꼼하게 질문한 후, 최종적으로 1인칭 시점의 일기를 작성해주면 된다. 물어볼 때는 JSON 형식에 asking : 1 을 기입하고, 최종적으로 일기를 다 작성하면 asking : 0을 작성하고 message에 최종적 일기를 작성하면 된다. ';
-
     await this.chatMessageService.createMessage({
       role: 'system',
-      text: prompted,
+      text: assistant1,
       session,
     });
 
