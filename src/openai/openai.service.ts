@@ -6,7 +6,7 @@ import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
 import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 
 import * as Shared from 'openai/resources/shared';
-import { summaryAssistant } from 'src/commons/constants/prompts';
+import { summaryAssistant, summaryAssistantThird } from 'src/commons/constants/prompts';
 import { WrittenDiary } from './dto/get-diary.dto';
 
 @Injectable()
@@ -56,7 +56,7 @@ export class OpenAIService implements OnModuleInit {
     const model: Shared.ChatModel = 'gpt-3.5-turbo';
 
     const messages: AIRequestMessage[] = [
-      { role: 'system', content: summaryAssistant },
+      { role: 'system', content: summaryAssistantThird },
       { role: 'user', content: content },
     ];
 

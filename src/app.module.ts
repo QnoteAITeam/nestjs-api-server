@@ -31,18 +31,17 @@ import { UserPassword } from './user-passwords/user-password.entity';
       password: process.env.DB_ROOT_PW,
       database: process.env.DB_NAME,
       entities: [
-        User,
-        ChatMessage,
-        ChatSession,
-        Diary,
-        EmotionTag,
-        Tag,
-        UserPassword,
+        __dirname + '/**/*.entity{.ts,.js}'
       ],
 
-      migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',
-      synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
-      // synchronize: true,
+      logging : true,
+
+      migrations:[__dirname + '/**/migrations/*.js'],
+      // migrationsRun: false,
+      // migrationsTableName: 'migrations',
+
+      // synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
+      synchronize: true,
     }),
 
     OpenAIModule,

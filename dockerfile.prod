@@ -1,5 +1,3 @@
-
-
 FROM node:22-alpine AS builder
 
 WORKDIR /app
@@ -7,9 +5,10 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install -g @nestjs/cli
+RUN npm install --save-dev ts-node
 RUN npm install --production
-COPY . .
 
+COPY . .
 RUN npm run build
 
 #다단계 빌드.. ./dist만들고 파일만 취한다음에, 더 작은 이미지로 갈아타는 것임.
@@ -17,14 +16,16 @@ FROM node:22-alpine AS production
 
 WORKDIR /app
 
-
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 
+COPY --from=builder /app/entrypoint.sh /app/entrypoint.sh
+
 RUN npm install -g @nestjs/cli
+RUN npm install --save-dev ts-node
 RUN npm install --production
 
-RUN sh -c npx typeorm migration:generate -d dist/src/data-source.js dist/src/migrations/InitMigration
-RUN sh -c npx typeorm migration:run -d dist/src/data-source.js
+#entrypoint.sh 실행권한 줌.
+RUN chmod +x /app/entrypoint.sh
 
-CMD ["npm", "run", "start:prod"]
+ENTRYPOINT [ "/app/entrypoint.sh" ]
