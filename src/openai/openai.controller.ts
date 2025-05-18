@@ -52,6 +52,7 @@ export class OpenAIController {
 
     const messages = session.messages;
     const messageList: AIRequestMessage[] = [];
+
     messages.forEach((value) => {
       messageList.push({ role: value.role, content: value.text });
     });
@@ -90,6 +91,11 @@ export class OpenAIController {
       state: object.asking == 1 ? 'asking' : 'done',
       message: response.content,
     };
+  }
+
+  @Post('summary')
+  async getSummaryContent(@Body() body: { content: string }) {
+    return this.openAiService.getDiaryInfoByContent(body.content);
   }
 
   // 필요 없음.

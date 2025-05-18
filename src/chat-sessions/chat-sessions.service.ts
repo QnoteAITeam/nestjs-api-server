@@ -9,6 +9,7 @@ import {
 import { User } from 'src/users/user.entity';
 import { ChatMessage } from 'src/chat-messages/chat-message.entity';
 import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
+import { assistant1 } from 'src/commons/constants/prompts';
 
 @Injectable()
 export class ChatSessionService {

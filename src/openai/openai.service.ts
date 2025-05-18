@@ -1,9 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import OpenAI from 'openai';
 import { ChatCompletion } from 'openai/resources/chat';
-import { AIRequestDto } from './dto/openai-request.dto';
+import { AIRequestDto, AIRequestMessage } from './dto/openai-request.dto';
 import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
 import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
+
+import * as Shared from 'openai/resources/shared';
+import { summaryAssistant } from 'src/commons/constants/prompts';
+import { WrittenDiary } from './dto/get-diary.dto';
 
 @Injectable()
 export class OpenAIService implements OnModuleInit {
@@ -32,14 +36,41 @@ export class OpenAIService implements OnModuleInit {
   }
 
   async sendMessage({ messages }: AIRequestDto): Promise<ChatCompletion> {
+    const model: Shared.ChatModel = 'gpt-3.5-turbo';
+
     try {
       const response: ChatCompletion =
         await this.openai.chat.completions.create({
-          model: 'gpt-3.5-turbo',
+          model: model,
           messages: messages,
         });
 
       return response;
+    } catch (error) {
+      console.error('OpenAI API 에러:', error);
+      throw new Error('OpenAI API 요청 실패');
+    }
+  }
+
+  async getDiaryInfoByContent(content: string): Promise<WrittenDiary> {
+    const model: Shared.ChatModel = 'gpt-3.5-turbo';
+
+    const messages: AIRequestMessage[] = [
+      { role: 'system', content: summaryAssistant },
+      { role: 'user', content: content },
+    ];
+
+    try {
+      const apiResponse: ChatCompletion =
+        await this.openai.chat.completions.create({
+          model: model,
+          messages,
+        });
+
+      const response = apiResponse.choices[0].message;
+      const parsing = JSON.parse(response.content!) as WrittenDiary;
+
+      return parsing;
     } catch (error) {
       console.error('OpenAI API 에러:', error);
       throw new Error('OpenAI API 요청 실패');

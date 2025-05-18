@@ -40,9 +40,9 @@ import { UserPassword } from './user-passwords/user-password.entity';
         UserPassword,
       ],
 
-      // migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',
-      // synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
-      synchronize: true,
+      migrationsRun: process.env.MYSQL_DATABASE_SYNCHRONIZE! !== 'true',
+      synchronize: process.env.MYSQL_DATABASE_SYNCHRONIZE! === 'true',
+      // synchronize: true,
     }),
 
     OpenAIModule,

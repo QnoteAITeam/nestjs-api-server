@@ -13,7 +13,7 @@ export class EmotionTag {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, length: 10 })
+  @Column({ unique: true, length: 40 })
   name: string;
 
   @ManyToMany(() => Diary, (diary) => diary.emotionTags)

@@ -13,7 +13,7 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=dev
-      - MYSQL_DATABASE_SYNCHRONIZE=true
+      - MYSQL_DATABASE_SYNCHRONIZE=false
     depends_on:
       - mysql-server
 
@@ -25,6 +25,12 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --skip-character-set-client-handshake
+
     ports:
       - '3306:3306'
     networks:
