@@ -9,7 +9,7 @@ import {
 import { User } from 'src/users/user.entity';
 import { ChatMessage } from 'src/chat-messages/chat-message.entity';
 import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
-import { assistant1 } from 'src/commons/constants/prompts';
+import { assistant2 } from 'src/commons/constants/prompts';
 
 @Injectable()
 export class ChatSessionService {
@@ -62,7 +62,7 @@ export class ChatSessionService {
     const session: ChatSession = await this.sessionRepository.save(instance); // 저장 및 반환
     await this.chatMessageService.createMessage({
       role: 'system',
-      text: assistant1,
+      text: assistant2,
       session,
     });
 

@@ -3,9 +3,13 @@ import * as dotenv from 'dotenv';
 import { AIRequestMessage } from './dto/openai-request.dto';
 import OpenAI from 'openai';
 import { WrittenDiary } from './dto/get-diary.dto';
-import { summaryAssistantThird } from 'src/commons/constants/prompts';
+import {
+  assistant2,
+  summaryAssistantThird,
+} from 'src/commons/constants/prompts';
 import { ChatCompletion } from 'openai/resources/chat';
 import { BadRequestException } from '@nestjs/common';
+import { ResponseMessageDto } from './dto/send-message.dto';
 
 dotenv.config();
 
@@ -26,6 +30,34 @@ async function getDiaryInfoByContent(content: string): Promise<WrittenDiary> {
 
     const response = apiResponse.choices[0].message;
     const parsing = JSON.parse(response.content!) as WrittenDiary;
+
+    return parsing;
+  } catch (error) {
+    console.error('OpenAI API 에러:', error);
+    throw new Error('OpenAI API 요청 실패');
+  }
+}
+
+async function sendMessageToAI(message: string): Promise<ResponseMessageDto> {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const model: Shared.ChatModel = 'gpt-3.5-turbo';
+
+  const messages: AIRequestMessage[] = [
+    { role: 'system', content: assistant2 },
+    { role: 'user', content: message },
+  ];
+
+  try {
+    const apiResponse: ChatCompletion = await openai.chat.completions.create({
+      model: model,
+      messages,
+    });
+
+    const response = apiResponse.choices[0].message;
+
+    console.log(response.content!);
+
+    const parsing = JSON.parse(response.content!) as ResponseMessageDto;
 
     return parsing;
   } catch (error) {
@@ -59,7 +91,7 @@ describe('OpenAIService', () => {
         'GetDiaryInfoByContent Function cause error',
       );
     }
-  });
+  }, 10000);
 
   it('OPEN AI 가 영어 일기를 제대로 요약할 수 있는 지에 대한 테스트', async () => {
     const input = `
@@ -79,5 +111,13 @@ describe('OpenAIService', () => {
         'GetDiaryInfoByContent Function cause error',
       );
     }
+  });
+
+  it('OPEN AI 가 사용자에 대한 대답을 한국어, 그리고 JSON문법으로 잘 하는지에 대한 테스트', async () => {
+    const inputMessage =
+      '아 오늘도 고생많았어. 진짜 오늘 고생많이했다고... 내가 일게써야하니까 질문리스트좀 여러개 만들어봐 한번에 답변해줄게.';
+
+    const response = await sendMessageToAI(inputMessage);
+    console.log(response);
   });
 });
