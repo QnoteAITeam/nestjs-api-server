@@ -1,15 +1,17 @@
 version: '3.7'
 
+# 동방 서버용 docker-compose
+
 services:
-  nestjs-server:
+  qnote-nestjs:
     build:
       context: ./
       dockerfile: dockerfile.prod
-    container_name: nestjs-server
+    container_name: qnote-nestjs
     ports:
-      - '23000:3000'
+      - '20001:3000'
     networks:
-      - backend
+      - hhs_network
     environment:
       - NODE_ENV=production
       - MYSQL_DATABASE_SYNCHRONIZE=false
@@ -27,14 +29,15 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+
     # ports:
     #   - '3306:3306'
 
     volumes:
       - ./mysql_data:/var/lib/mysql
     networks:
-      - backend
+      - hhs_network
 
 networks:
-  backend:
+  hhs_network:
     driver: bridge
