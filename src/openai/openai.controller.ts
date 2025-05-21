@@ -1,8 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   NotFoundException,
+  Param,
+  ParseIntPipe,
   Post,
+  PreconditionFailedException,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +20,7 @@ import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
 import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 import { AIRequestMessage } from './dto/openai-request.dto';
 import { ChatCompletion } from 'openai/resources/chat';
+import { ChatSession } from 'src/chat-sessions/chat-session.entity';
 
 @Controller('openai')
 export class OpenAIController {
@@ -33,6 +38,7 @@ export class OpenAIController {
     @Body() body: { message: string },
   ): Promise<SendMessageDto> {
     // 유저의 최근 세션을 찾아서, 최근 세션의 메세지를 다 합쳐서 api쿼리.
+    console.log(payload.sub);
     const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new UnauthorizedException(
@@ -93,14 +99,68 @@ export class OpenAIController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('summary')
   async getSummaryContent(@Body() body: { content: string }) {
     return this.openAiService.getDiaryInfoByContent(body.content);
   }
 
-  // 필요 없음.
-  // @Get('messages')
-  // async getMessages(): Promise<GetMessagesDto> {
-  //   //
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Post('summary/content')
+  async getSummaryByContent(@Body() body: { content: string }) {
+    return this.openAiService.getDiarySummaryByContent(body.content);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('predict/recent')
+  async getPredictUserAnswerMostSession(@User() payload: IPayLoad) {
+    const user = await this.userService.findById({ id: payload.sub });
+
+    if (user === null)
+      throw new UnauthorizedException(
+        '사용자가 존재하지 않거나 삭제된 계정입니다.',
+      );
+
+    const chatSession = await this.chatSessionService.findMostRecentByUser({
+      user,
+    });
+
+    if (chatSession === null)
+      throw new PreconditionFailedException(
+        'ChatSession 을 미리 만들어 놓지 않음.',
+      );
+
+    return this.openAiService.predictUserAnswerBySession({
+      chatSession: (await this.chatSessionService.findByIdWithRelations({
+        id: chatSession.id,
+        relations: ['messages'],
+      })) as ChatSession,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('predict/:id')
+  async getPredictUserAnswerByChatSessionId(
+    @User() payload: IPayLoad,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const user = await this.userService.findById({ id: payload.sub });
+
+    if (user === null)
+      throw new UnauthorizedException(
+        '사용자가 존재하지 않거나 삭제된 계정입니다.',
+      );
+
+    const chatSession = await this.chatSessionService.findByIdWithRelations({
+      id,
+      relations: ['messages'],
+    });
+
+    if (chatSession === null)
+      throw new PreconditionFailedException(
+        'ChatSession 을 미리 만들어 놓지 않음.',
+      );
+
+    return this.openAiService.predictUserAnswerBySession({ chatSession });
+  }
 }

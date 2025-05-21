@@ -26,6 +26,19 @@ export class ChatSessionService {
     return this.sessionRepository.findOne({ where: { id } });
   }
 
+  async findByIdWithRelations({
+    id,
+    relations,
+  }: {
+    id: number;
+    relations: string[];
+  }) {
+    return this.sessionRepository.findOne({
+      where: { id },
+      relations,
+    });
+  }
+
   // 가장 최근의 세션 하나
   async findMostRecentByUser({ user }: IUser): Promise<ChatSession | null> {
     return this.sessionRepository.findOne({

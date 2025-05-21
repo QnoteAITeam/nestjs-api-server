@@ -71,4 +71,11 @@ export class UserService {
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();
   }
+
+  async findByIdWithTags({ id }: IID): Promise<User> {
+    return this.userRepository.findOne({
+      where: { id: id },
+      relations: ['tags', 'emotionTags'],
+    }) as Promise<User>;
+  }
 }

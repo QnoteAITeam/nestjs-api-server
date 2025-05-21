@@ -20,6 +20,8 @@ export class DiaryService {
     content,
     tags,
     emotionTags,
+    summary,
+    promptingSummary,
   }: ICreate): Promise<Diary> {
     const diary = this.diaryRepository.create({
       title,
@@ -27,6 +29,8 @@ export class DiaryService {
       user,
       tags,
       emotionTags,
+      summary,
+      promptingSummary,
     });
 
     return this.diaryRepository.save(diary);

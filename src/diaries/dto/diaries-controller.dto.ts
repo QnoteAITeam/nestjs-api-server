@@ -15,6 +15,8 @@ export interface ICreate {
   content: string;
   tags: Tag[];
   emotionTags: EmotionTag[];
+  summary: string;
+  promptingSummary: string;
 }
 
 export interface IUpdate {

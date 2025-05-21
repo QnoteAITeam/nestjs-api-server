@@ -13,8 +13,8 @@ import {
   OneToMany,
   OneToOne,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 @Entity()
 export class User {
@@ -61,16 +61,18 @@ export class User {
   provider: 'local' | 'google' | 'kakao';
 
   @OneToMany(() => ChatSession, (session) => session.user)
-  sessions: ChatSession[];
+  sessions: ChatSession[] | undefined;
 
   @OneToMany(() => Diary, (diary) => diary.user)
-  diaries: Diary[];
+  diaries: Diary[] | undefined;
 
   @ManyToMany(() => EmotionTag, (emotionTag) => emotionTag.users, {
     cascade: true,
   })
-  emotionTags: EmotionTag[];
+  @JoinTable()
+  emotionTags: EmotionTag[] | undefined;
 
   @ManyToMany(() => Tag, (tag) => tag.users, { cascade: true })
-  tags: Tag[];
+  @JoinTable()
+  tags: Tag[] | undefined;
 }
