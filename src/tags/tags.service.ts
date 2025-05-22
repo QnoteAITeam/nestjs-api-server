@@ -47,9 +47,15 @@ export class TagService {
     if (user.emotionTags) allTags.push(...user.emotionTags);
 
     const tagMaps = new Map(allTags.map((tag) => [tag.id, tag]));
-    const filteredTags = Array.from(tagMaps.values());
+    let filteredTags = Array.from(tagMaps.values());
 
-    user.emotionTags = filteredTags;
+    const userEmotionTagIds = new Set(
+      user.emotionTags?.map((tag) => tag.id) ?? [],
+    );
+
+    filteredTags = filteredTags.filter((tag) => !userEmotionTagIds.has(tag.id));
+
+    user.emotionTags = [...(user.emotionTags ?? []), ...filteredTags];
     await this.userRepository.save(user);
     return filteredTags;
   }
@@ -75,12 +81,13 @@ export class TagService {
 
     //user Tag 업데이트 해야하므로, 모든 태그를 일단 다 집어넣은 배열 선언, 중복 태그가 존재한다.
     const allTags = [...existingTags, ...savedNewTags];
-    if (user.tags) allTags.push(...user.tags);
-
     const tagMaps = new Map(allTags.map((tag) => [tag.id, tag]));
-    const filteredTags = Array.from(tagMaps.values());
+    let filteredTags = Array.from(tagMaps.values());
 
-    user.tags = filteredTags;
+    const userTagIds = new Set(user.tags?.map((tag) => tag.id) ?? []);
+    filteredTags = filteredTags.filter((tag) => !userTagIds.has(tag.id));
+
+    user.tags = [...(user.tags ?? []), ...filteredTags];
     await this.userRepository.save(user);
     return filteredTags;
   }

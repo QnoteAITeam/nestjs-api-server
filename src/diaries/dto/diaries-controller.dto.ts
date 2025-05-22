@@ -1,11 +1,19 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { User } from 'src/users/user.entity';
 
-export class CreateDiaryDto {
+export class CreateDiaryRequestDto {
+  @ApiProperty()
   title: string;
+
+  @ApiProperty()
   content: string;
+
+  @ApiProperty()
   tags: string[]; // tag names
+
+  @ApiProperty()
   emotionTags: string[]; // emotion tag names
 }
 

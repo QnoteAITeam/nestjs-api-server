@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -11,7 +12,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OpenAIService } from './openai.service';
-import { SendMessageDto, ResponseMessageDto } from './dto/send-message.dto';
+import {
+  SendMessageDto,
+  ResponseMessageDto,
+  SendMessageRequestDto,
+} from './dto/send-message.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/auth/auth-user.decorator';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
@@ -21,6 +26,16 @@ import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 import { AIRequestMessage } from './dto/openai-request.dto';
 import { ChatCompletion } from 'openai/resources/chat';
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  GetDiaryMetaDataByContentDto,
+  GetDiaryMetaDataByContentRequestDto,
+} from './dto/get-diary-metadata.dto';
+import {
+  GetSummaryByContentDto,
+  GetSummaryByContentRequestDto,
+} from './dto/get-summary.dto';
+import { GetPredictUserAnswerMostSessionDto } from './dto/get-predict-most-session.dto';
 
 @Controller('openai')
 export class OpenAIController {
@@ -31,8 +46,16 @@ export class OpenAIController {
     private readonly chatMessageService: ChatMessageService,
   ) {}
 
+  @ApiResponse({
+    status: 201,
+    description: 'AI에게 성공적으로 요청하여, 응답받았습니다.',
+    type: SendMessageDto,
+  })
+  @ApiBody({ type: SendMessageRequestDto })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post('send-message')
+  @HttpCode(201)
   async sendMessage(
     @User() payload: IPayLoad,
     @Body() body: { message: string },
@@ -95,22 +118,44 @@ export class OpenAIController {
     return {
       role: 'assistant',
       state: object.asking == 1 ? 'asking' : 'done',
+      // message : object.message <<-- 이걸로 했어야 하는데, 이미 플러터에서 파싱해버림..
       message: response.content,
     };
   }
 
+  @ApiResponse({
+    status: 201,
+    description: '일기 내용에 대한 구조가 성공적으로 생성됨.',
+    type: GetDiaryMetaDataByContentDto,
+  })
+  @ApiBody({ type: GetDiaryMetaDataByContentRequestDto })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
-  @Post('summary')
-  async getSummaryContent(@Body() body: { content: string }) {
-    return this.openAiService.getDiaryInfoByContent(body.content);
+  @Post('metadata')
+  async getDiaryMetaDataByContent(@Body() body: { content: string }) {
+    return this.openAiService.getDiaryMetaDataByContent(body.content);
   }
 
+  @ApiResponse({
+    status: 201,
+    description: '일기에 대한 내용이 성공적으로 요약 되었습니다.',
+    type: GetSummaryByContentDto,
+  })
+  @ApiBody({ type: GetSummaryByContentRequestDto })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post('summary/content')
   async getSummaryByContent(@Body() body: { content: string }) {
     return this.openAiService.getDiarySummaryByContent(body.content);
   }
 
+  @ApiResponse({
+    status: 201,
+    description:
+      '최근 세션에 대한 예상 유저의 응답을 성공적으로 생성 했습니다.',
+    type: GetPredictUserAnswerMostSessionDto,
+  })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('predict/recent')
   async getPredictUserAnswerMostSession(@User() payload: IPayLoad) {
@@ -138,6 +183,19 @@ export class OpenAIController {
     });
   }
 
+  @ApiResponse({
+    status: 201,
+    description:
+      '특정 세션에 대한 예상 유저의 응답을 성공적으로 생성 했습니다.',
+    type: GetPredictUserAnswerMostSessionDto,
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: '예측하려는 대상 ChatSession의 ID',
+    example: 123,
+  })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('predict/:id')
   async getPredictUserAnswerByChatSessionId(

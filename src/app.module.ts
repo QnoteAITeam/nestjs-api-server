@@ -30,13 +30,11 @@ import { UserPassword } from './user-passwords/user-password.entity';
       username: 'root',
       password: process.env.DB_ROOT_PW,
       database: process.env.DB_NAME,
-      entities: [
-        __dirname + '/**/*.entity{.ts,.js}'
-      ],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
 
-      logging : true,
+      logging: true,
 
-      migrations:[__dirname + '/**/migrations/*.js'],
+      migrations: [__dirname + '/**/migrations/*.js'],
       // migrationsRun: false,
       // migrationsTableName: 'migrations',
 
