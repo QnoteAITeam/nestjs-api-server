@@ -14,6 +14,7 @@ services:
     environment:
       - NODE_ENV=dev
       - MYSQL_DATABASE_SYNCHRONIZE=true
+      - PORT=3000
     depends_on:
       - mysql-server
 
