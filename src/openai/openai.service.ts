@@ -98,9 +98,12 @@ export class OpenAIService implements OnModuleInit {
         '서버 측 에서, chatSession에 대한 정보를 relations 하지 않았습니다.',
       );
 
+    //세션에는 기본 시스템 메세지가 존재하므로 하나 뺍니다.
+    const [systemChat, ...rest] = chatSession.messages;
+
     const messages: AIRequestMessage[] = [
       { role: 'system', content: predict_prompt },
-      { role: 'user', content: JSON.stringify(chatSession.messages) },
+      { role: 'user', content: JSON.stringify(rest) },
     ];
 
     try {
