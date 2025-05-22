@@ -79,7 +79,7 @@ export class DiariesController {
     @Payload() payload: IPayLoad,
     @Query('page', ParseIntPipe) page: number,
   ) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
 
     if (user === null)
       throw new NotFoundException(
@@ -96,7 +96,7 @@ export class DiariesController {
     @Payload() payload: IPayLoad,
     @Query('count', ParseIntPipe) count: number,
   ) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
 
     if (user === null)
       throw new NotFoundException(
@@ -109,7 +109,7 @@ export class DiariesController {
   @Get('recent/one')
   @UseGuards(JwtAuthGuard)
   async findMostRecent(@Payload() payload: IPayLoad) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
@@ -131,7 +131,7 @@ export class DiariesController {
     @Payload() payload: IPayLoad,
     @Body() updateData: UpdateDiaryDto,
   ) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
