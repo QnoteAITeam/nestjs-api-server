@@ -21,7 +21,7 @@ export class ChatMessageService {
     session,
   }: IFindAllBySession): Promise<ChatMessage[]> {
     return this.messageRepository.find({
-      where: { session },
+      where: { session: { id: session.id } },
       order: { createdAt: 'ASC' }, // 시간순 정렬
     });
   }
@@ -33,7 +33,7 @@ export class ChatMessageService {
   }: IFindRecentMessages): Promise<ChatMessage[]> {
     return this.messageRepository
       .find({
-        where: { session },
+        where: { session: { id: session.id } },
         order: { createdAt: 'DESC' },
         take: count,
       })

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './entities/tag.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { EmotionTag } from './entities/emotion-tag.entity';
 import { User } from 'src/users/user.entity';
 import {
@@ -26,7 +26,7 @@ export class TagService {
     emotionTags,
   }: IEmotionTagFindOrCreateByNames) {
     const existingTags = await this.emotionTagRepository.find({
-      where: emotionTags.map((name) => ({ name })),
+      where: { name: In(emotionTags) },
     });
 
     const existingNames: string[] = existingTags.map((tag) => tag.name);
@@ -57,7 +57,7 @@ export class TagService {
   //User의 관계 emotionTags들도, 다 넣어서 와야합니다. 사용 하니까요!
   async tagFindOrCreateByNames({ user, tags }: ITagFindOrCreateByNames) {
     const existingTags = await this.tagRepository.find({
-      where: tags.map((name) => ({ name })),
+      where: { name: In(tags) },
     });
 
     const existingNames: string[] = existingTags.map((tag) => tag.name);

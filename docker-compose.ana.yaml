@@ -1,0 +1,46 @@
+version: '3.7'
+
+# 동방 서버용 docker-compose
+
+services:
+  qnote-nestjs:
+    build:
+      context: ./
+      dockerfile: dockerfile.prod
+    container_name: qnote-nestjs
+    ports:
+      - '20001:20001'
+    networks:
+      - hhs_network
+      - dmoj_nginx_network
+    environment:
+      - NODE_ENV=production
+      - MYSQL_DATABASE_SYNCHRONIZE=false
+    depends_on:
+      - mysql-server
+    restart: always
+    env_file:
+      - .env
+
+  mysql-server:
+    image: mysql:latest
+    container_name: mysql-server
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PW}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+    # ports:
+    #   - '3306:3306'
+
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - hhs_network
+
+networks:
+  hhs_network:
+    driver: bridge
+  dmoj_nginx_network:
+    external: true

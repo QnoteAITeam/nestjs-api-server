@@ -10,6 +10,7 @@ import { User } from './user.entity';
 import { IEmail, IID } from 'src/commons/interfaces/interfaces';
 import { UserPasswordService } from 'src/user-passwords/user-passwords.service';
 import { NotFoundError } from 'rxjs';
+import { UserPassword } from 'src/user-passwords/user-password.entity';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,9 @@ export class UserService {
   ) {}
 
   async findByEmail({ email }: IEmail): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({
+      where: { email },
+    });
   }
 
   async findById({ id }: IID): Promise<User | null> {
@@ -44,7 +47,35 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async createUserWithName(
+    email: string,
+    password: string,
+    username: string,
+  ): Promise<User> {
+    const prev = await this.findByEmail({ email });
+    if (prev) throw new ConflictException('이미 사용 중인 이메일 입니다.');
+
+    const passwordEntity = await this.userPasswordService.createPassword({
+      rawPassword: password,
+    });
+
+    const user = this.userRepository.create({
+      email,
+      username,
+      password: passwordEntity,
+    });
+
+    return this.userRepository.save(user);
+  }
+
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();
+  }
+
+  async findByIdWithTags({ id }: IID): Promise<User> {
+    return this.userRepository.findOne({
+      where: { id: id },
+      relations: ['tags', 'emotionTags'],
+    }) as Promise<User>;
   }
 }

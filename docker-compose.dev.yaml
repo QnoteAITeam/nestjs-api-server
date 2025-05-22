@@ -25,6 +25,8 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
+
     ports:
       - '3306:3306'
     networks:

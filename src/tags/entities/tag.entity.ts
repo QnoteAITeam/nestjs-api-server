@@ -1,4 +1,4 @@
-import { Diary } from 'src/diaries/diary.entitiy';
+import { Diary } from 'src/diaries/diary.entity';
 import { User } from 'src/users/user.entity';
 import {
   Entity,
@@ -13,7 +13,7 @@ export class Tag {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, length: 10 })
+  @Column({ unique: true, length: 40 })
   name: string;
 
   @ManyToMany(() => Diary, (diary) => diary.tags)

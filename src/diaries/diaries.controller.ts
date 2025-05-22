@@ -23,7 +23,9 @@ import { UserService } from 'src/users/users.service';
 import { TagService } from 'src/tags/tags.service';
 import { DiaryService } from './diaries.service';
 import { get } from 'http';
-import { Diary } from './diary.entitiy';
+import { Diary } from './diary.entity';
+import { OpenAIService } from 'src/openai/openai.service';
+import { SummaryDto } from 'src/openai/dto/summary.dto';
 
 @Controller('diaries')
 export class DiariesController {
@@ -31,6 +33,7 @@ export class DiariesController {
     private readonly diaryService: DiaryService,
     private readonly tagService: TagService,
     private readonly userService: UserService,
+    private readonly openAIService: OpenAIService,
   ) {}
 
   //   "title": "오늘의 일기",
@@ -40,12 +43,11 @@ export class DiariesController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Payload() payload: IPayLoad, @Body() dto: CreateDiaryDto) {
-    const user = await this.userService.findById({ id: payload.sub });
+    const user = await this.userService.findByIdWithTags({ id: payload.sub });
 
-    if (user == null)
+    if (user === null || user === undefined)
       throw new NotFoundException('There is no User Entity in DB');
 
-    //병렬 쓰레딩.
     const [tagEntities, emotionTagEntities] = await Promise.all([
       this.tagService.tagFindOrCreateByNames({ user, tags: dto.tags }),
       this.tagService.emotionTagFindOrCreateByNames({
@@ -54,12 +56,17 @@ export class DiariesController {
       }),
     ]);
 
+    const summary: SummaryDto =
+      await this.openAIService.getDiarySummaryByContent(dto.content);
+
     const diary = await this.diaryService.create({
       user,
       title: dto.title,
       content: dto.content,
       tags: tagEntities,
       emotionTags: emotionTagEntities,
+      summary: summary.summary,
+      promptingSummary: summary.promptingSummary,
     });
 
     return diary;
@@ -72,7 +79,7 @@ export class DiariesController {
     @Payload() payload: IPayLoad,
     @Query('page', ParseIntPipe) page: number,
   ) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
 
     if (user === null)
       throw new NotFoundException(
@@ -89,7 +96,7 @@ export class DiariesController {
     @Payload() payload: IPayLoad,
     @Query('count', ParseIntPipe) count: number,
   ) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
 
     if (user === null)
       throw new NotFoundException(
@@ -102,7 +109,7 @@ export class DiariesController {
   @Get('recent/one')
   @UseGuards(JwtAuthGuard)
   async findMostRecent(@Payload() payload: IPayLoad) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
@@ -124,7 +131,7 @@ export class DiariesController {
     @Payload() payload: IPayLoad,
     @Body() updateData: UpdateDiaryDto,
   ) {
-    const user = await this.userService.findById({ id: payload.name });
+    const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 

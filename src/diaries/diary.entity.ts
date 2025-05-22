@@ -46,4 +46,7 @@ export class Diary {
   @ManyToMany(() => EmotionTag, { cascade: true })
   @JoinTable()
   emotionTags: EmotionTag[];
+
+  @Column('text')
+  promptingSummary: string;
 }

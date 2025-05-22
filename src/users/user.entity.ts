@@ -1,5 +1,5 @@
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
-import { Diary } from 'src/diaries/diary.entitiy';
+import { Diary } from 'src/diaries/diary.entity';
 import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { UserPassword } from 'src/user-passwords/user-password.entity';
@@ -13,8 +13,8 @@ import {
   OneToMany,
   OneToOne,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 @Entity()
 export class User {
@@ -61,16 +61,18 @@ export class User {
   provider: 'local' | 'google' | 'kakao';
 
   @OneToMany(() => ChatSession, (session) => session.user)
-  sessions: ChatSession[];
+  sessions: ChatSession[] | undefined;
 
   @OneToMany(() => Diary, (diary) => diary.user)
-  diaries: Diary[];
+  diaries: Diary[] | undefined;
 
   @ManyToMany(() => EmotionTag, (emotionTag) => emotionTag.users, {
     cascade: true,
   })
-  emotionTags: EmotionTag[];
+  @JoinTable()
+  emotionTags: EmotionTag[] | undefined;
 
   @ManyToMany(() => Tag, (tag) => tag.users, { cascade: true })
-  tags: Tag[];
+  @JoinTable()
+  tags: Tag[] | undefined;
 }

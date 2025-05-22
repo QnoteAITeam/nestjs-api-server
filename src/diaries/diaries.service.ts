@@ -2,14 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
-import { Diary } from './diary.entitiy';
+import { Diary } from './diary.entity';
 import { ICreate, IUpdate } from './dto/diaries-controller.dto';
+import { TagService } from 'src/tags/tags.service';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @InjectRepository(Diary)
-    private diaryRepository: Repository<Diary>,
+    private readonly diaryRepository: Repository<Diary>,
+    private readonly tagService: TagService,
   ) {}
 
   async create({
@@ -18,6 +20,8 @@ export class DiaryService {
     content,
     tags,
     emotionTags,
+    summary,
+    promptingSummary,
   }: ICreate): Promise<Diary> {
     const diary = this.diaryRepository.create({
       title,
@@ -25,6 +29,8 @@ export class DiaryService {
       user,
       tags,
       emotionTags,
+      summary,
+      promptingSummary,
     });
 
     return this.diaryRepository.save(diary);
@@ -42,7 +48,7 @@ export class DiaryService {
     const skip = (page - 1) * take;
 
     return this.diaryRepository.find({
-      where: { user },
+      where: { user: { id: user.id } },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
       take,
@@ -59,7 +65,7 @@ export class DiaryService {
     count: number;
   }): Promise<Diary[]> {
     return this.diaryRepository.find({
-      where: { user },
+      where: { user: { id: user.id } },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
       take: count,
@@ -69,7 +75,7 @@ export class DiaryService {
   //유저가 작성한 가장 최근 일기를 가져옵니다.
   async findMostRecent(user: User): Promise<Diary | null> {
     return this.diaryRepository.findOne({
-      where: { user },
+      where: { user: { id: user.id } },
       relations: ['tags', 'emotionTags'],
       order: { createdAt: 'DESC' },
     });
@@ -89,12 +95,23 @@ export class DiaryService {
     if (updateData.title !== undefined) diary.title = updateData.title;
     if (updateData.content !== undefined) diary.content = updateData.content;
 
+    const updatedTags = await this.tagService.tagFindOrCreateByNames({
+      user,
+      tags: updateData.tags ?? [],
+    });
+
+    const updatedEmotionTags =
+      await this.tagService.emotionTagFindOrCreateByNames({
+        user,
+        emotionTags: updateData.emotionTags ?? [],
+      });
+
     if (updateData.tags) {
-      diary.tags = updateData.tags;
+      diary.tags = updatedTags;
     }
 
     if (updateData.emotionTags) {
-      diary.emotionTags = updateData.emotionTags;
+      diary.emotionTags = updatedEmotionTags;
     }
 
     return this.diaryRepository.save(diary);
