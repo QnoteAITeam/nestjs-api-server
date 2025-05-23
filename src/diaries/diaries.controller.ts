@@ -3,8 +3,6 @@ import {
   Post,
   Body,
   UseGuards,
-  Req,
-  UnauthorizedException,
   NotFoundException,
   Get,
   Query,
@@ -12,20 +10,30 @@ import {
   Param,
   Put,
   Delete,
+  HttpCode,
+  ForbiddenException,
+  DefaultValuePipe,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CreateDiaryDto, UpdateDiaryDto } from './dto/diaries-controller.dto';
-import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
+import { CreateDiaryRequestDto } from './dto/diaries-controller.dto';
 import { User as Payload } from 'src/auth/auth-user.decorator';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { UserService } from 'src/users/users.service';
 import { TagService } from 'src/tags/tags.service';
 import { DiaryService } from './diaries.service';
-import { get } from 'http';
-import { Diary } from './diary.entity';
+
 import { OpenAIService } from 'src/openai/openai.service';
 import { SummaryDto } from 'src/openai/dto/summary.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { DiaryDto } from './dto/diary.dto';
+import { plainToInstance } from 'class-transformer';
+import { UpdateDiaryRequestDto } from './dto/update-diary.dto';
+
 
 @Controller('diaries')
 export class DiariesController {
@@ -36,14 +44,25 @@ export class DiariesController {
     private readonly openAIService: OpenAIService,
   ) {}
 
-  //   "title": "오늘의 일기",
-  //   "content": "기분이 좋았던 하루였다.",
-  //   "tags": ["공부", "운동"],
-  //   "emotionTags": ["행복", "뿌듯함"]
+  @ApiResponse({
+    status: 201,
+    description: 'Diary 생성에 성공했습니다.',
+    type: DiaryDto,
+  })
+  @ApiOperation({ summary: '일기 생성 API' })
+  @ApiBody({ type: CreateDiaryRequestDto })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Payload() payload: IPayLoad, @Body() dto: CreateDiaryDto) {
+
+  @HttpCode(201)
+  async create(
+    @Payload() payload: IPayLoad,
+    @Body() dto: CreateDiaryRequestDto,
+  ) {
     const user = await this.userService.findByIdWithTags({ id: payload.sub });
+
+    console.log(user);
 
     if (user === null || user === undefined)
       throw new NotFoundException('There is no User Entity in DB');
@@ -69,15 +88,23 @@ export class DiariesController {
       promptingSummary: summary.promptingSummary,
     });
 
-    return diary;
+    return plainToInstance(DiaryDto, diary, { excludeExtraneousValues: true });
   }
 
-  // 'baseurl/diaries?page=${number}
-  @Get()
+  @ApiResponse({
+    status: 200,
+    description: '1개의 페이지 (10개) 에 대한 일기 조회에 성공했습니다.',
+    type: DiaryDto,
+    isArray: true,
+  })
+  @ApiOperation({ summary: '특정 1개 페이지 (10개) 에 대한 일기 조회' })
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
+  @Get()
+  @HttpCode(200)
   async findAll(
     @Payload() payload: IPayLoad,
-    @Query('page', ParseIntPipe) page: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
   ) {
     const user = await this.userService.findById({ id: payload.sub });
 
@@ -86,15 +113,27 @@ export class DiariesController {
         `There is no Imformation for User.id = ${payload.sub}`,
       );
 
-    return this.diaryService.findAll({ user, page });
+    return plainToInstance(
+      DiaryDto,
+      await this.diaryService.findAll({ user, page }),
+      { excludeExtraneousValues: true },
+    );
   }
 
-  //baseurl/diaires?count=${number}
+  @ApiResponse({
+    status: 200,
+    description: '최근 N개에 대한 일기 조회에 성공했습니다.',
+    type: DiaryDto,
+    isArray: true,
+  })
+  @ApiOperation({ summary: '최근 N개에 대한 일기 조회' })
+  @ApiBearerAuth('access-token')
   @Get('recent')
   @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
   async findRecentN(
     @Payload() payload: IPayLoad,
-    @Query('count', ParseIntPipe) count: number,
+    @Query('count', new DefaultValuePipe(1), ParseIntPipe) count: number = 5,
   ) {
     const user = await this.userService.findById({ id: payload.sub });
 
@@ -103,44 +142,105 @@ export class DiariesController {
         `There is no Imformation for User.id = ${payload.sub}`,
       );
 
-    return this.diaryService.findRecentN({ user, count });
+    return plainToInstance(
+      DiaryDto,
+      await this.diaryService.findRecentN({ user, count }),
+      { excludeExtraneousValues: true },
+    );
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '최근 일기 조회에 성공했습니다.',
+    type: DiaryDto,
+  })
+  @ApiOperation({ summary: '최근 일기 조회' })
+  @ApiBearerAuth('access-token')
   @Get('recent/one')
   @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
   async findMostRecent(@Payload() payload: IPayLoad) {
     const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
-    return this.diaryService.findMostRecent(user);
+    return plainToInstance(
+      DiaryDto,
+      await this.diaryService.findMostRecent(user),
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
-  // baseurl/diaries/231241  <<- diary.id
+  @ApiResponse({
+    status: 200,
+    description: '특정 일기 조회에 성공했습니다.',
+    type: DiaryDto,
+  })
+  @ApiOperation({ summary: '아이디로 특정 일기 조회' })
+  @ApiBearerAuth('access-token')
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const diary = await this.diaryService.findOneById(id);
-    if (!diary) throw new NotFoundException(`Diary with ID ${id} not found.`);
-    return diary;
-  }
-
-  // baseurl/diaries/123123
-  @Put(':id')
-  async update(
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async findOne(
     @Param('id', ParseIntPipe) id: number,
     @Payload() payload: IPayLoad,
-    @Body() updateData: UpdateDiaryDto,
+  ) {
+    const diary = await this.diaryService.findOneByIdWithRelations(id, [
+      'user',
+    ]);
+
+    if (!diary) throw new NotFoundException(`Diary with ID ${id} not found.`);
+
+    if (diary.user.id !== payload.sub)
+      throw new ForbiddenException('이 일기에 접근할 권한이 없습니다.');
+
+    return plainToInstance(DiaryDto, diary, { excludeExtraneousValues: true });
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: '특정 일기 업데이트에 성공했습니다.',
+    type: DiaryDto,
+  })
+  @ApiOperation({ summary: '일기 아이디로 특정 일기 업데이트' })
+  @ApiBody({ type: UpdateDiaryRequestDto })
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  @HttpCode(201)
+  async updateDiary(
+    @Param('id', ParseIntPipe) id: number,
+    @Payload() payload: IPayLoad,
+    @Body() updateData: UpdateDiaryRequestDto,
   ) {
     const user = await this.userService.findById({ id: payload.sub });
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
-    return this.diaryService.update({ id, user, updateData });
+    return plainToInstance(
+      DiaryDto,
+      await this.diaryService.update({ id, user, updateData }),
+      { excludeExtraneousValues: true },
+    );
   }
 
-  // baseurl/diaries/123123
+  @ApiResponse({
+    status: 200,
+    description: '특정 일기 삭제에 성공했습니다.',
+    type: DiaryDto,
+  })
+  @ApiOperation({ summary: '일기 아이디로 특정 일기 삭제' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.diaryService.remove(id);
+  @HttpCode(200)
+  async removeDiary(@Param('id', ParseIntPipe) id: number) {
+    const deleted = await this.diaryService.remove(id);
+
+    return plainToInstance(DiaryDto, deleted, {
+      excludeExtraneousValues: true,
+    });
   }
 }

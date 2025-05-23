@@ -44,7 +44,7 @@ export class DiaryService {
     user: User;
     page: number;
   }): Promise<Diary[]> {
-    const take = 50;
+    const take = 10;
     const skip = (page - 1) * take;
 
     return this.diaryRepository.find({
@@ -83,6 +83,10 @@ export class DiaryService {
 
   async findOneById(id: number) {
     return this.diaryRepository.findOne({ where: { id } });
+  }
+
+  async findOneByIdWithRelations(id: number, relations: string[]) {
+    return this.diaryRepository.findOne({ where: { id }, relations });
   }
 
   //id : number에 해당하는 다이어리를 업데이트함.

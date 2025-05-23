@@ -24,6 +24,8 @@ export class ChatMessage {
   createdAt: Date;
 
   @Index()
-  @ManyToOne(() => ChatSession, (session) => session.messages)
+  @ManyToOne(() => ChatSession, (session) => session.messages, {
+    onDelete: 'CASCADE',
+  })
   session: ChatSession;
 }

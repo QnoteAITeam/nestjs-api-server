@@ -13,12 +13,12 @@ export class ChatSession {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.sessions)
+  @ManyToOne(() => User, (user) => user.sessions, { onDelete: 'CASCADE' })
   user: User;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => ChatMessage, (message) => message.session)
+  @OneToMany(() => ChatMessage, (message) => message.session, { cascade: true })
   messages: ChatMessage[];
 }

@@ -1,5 +1,6 @@
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
 import { Diary } from 'src/diaries/diary.entity';
+import { Schedule } from 'src/schedules/schedule.entity';
 import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { UserPassword } from 'src/user-passwords/user-password.entity';
@@ -60,10 +61,10 @@ export class User {
   @Column({ type: 'varchar', length: 6, default: 'local' })
   provider: 'local' | 'google' | 'kakao';
 
-  @OneToMany(() => ChatSession, (session) => session.user)
+  @OneToMany(() => ChatSession, (session) => session.user, { cascade: true })
   sessions: ChatSession[] | undefined;
 
-  @OneToMany(() => Diary, (diary) => diary.user)
+  @OneToMany(() => Diary, (diary) => diary.user, { cascade: true })
   diaries: Diary[] | undefined;
 
   @ManyToMany(() => EmotionTag, (emotionTag) => emotionTag.users, {
@@ -75,4 +76,7 @@ export class User {
   @ManyToMany(() => Tag, (tag) => tag.users, { cascade: true })
   @JoinTable()
   tags: Tag[] | undefined;
+
+  @OneToMany(() => Schedule, (schedule) => schedule.user, { cascade: true })
+  schedules: Schedule[];
 }

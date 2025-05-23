@@ -16,6 +16,7 @@ import { EmotionTag } from './tags/entities/emotion-tag.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { DiaryModule } from './diaries/diaries.module';
 import { UserPassword } from './user-passwords/user-password.entity';
+import { SchedulesModule } from './schedules/schedules.module';
 
 @Module({
   imports: [
@@ -30,13 +31,11 @@ import { UserPassword } from './user-passwords/user-password.entity';
       username: 'root',
       password: process.env.DB_ROOT_PW,
       database: process.env.DB_NAME,
-      entities: [
-        __dirname + '/**/*.entity{.ts,.js}'
-      ],
+      
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      logging: true,
+      migrations: [__dirname + '/**/migrations/*.js'],
 
-      logging : true,
-
-      migrations:[__dirname + '/**/migrations/*.js'],
       // migrationsRun: false,
       // migrationsTableName: 'migrations',
 
@@ -50,6 +49,7 @@ import { UserPassword } from './user-passwords/user-password.entity';
     ChatMessageModule,
     AuthModule,
     DiaryModule,
+    SchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
