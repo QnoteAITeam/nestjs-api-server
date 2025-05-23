@@ -14,7 +14,13 @@ import { User } from './user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto, CreateUserRequestDto } from './dto/create-user.dto';
 import { plainToInstance } from 'class-transformer';
-import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { SignUpLocalRequestDto } from './dto/signup-local.dto';
 
@@ -28,6 +34,7 @@ export class UserController {
     type: UserDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '모든 정보의 요청, 나중에 삭제할 API' })
   @Get()
   async getAll(): Promise<UserDto[]> {
     const UserArray = await this.userService.getAllUsers();
@@ -42,6 +49,7 @@ export class UserController {
     description: '성공적인, 본인 정보 요청',
     type: UserDto,
   })
+  @ApiOperation({ summary: '본인 정보 요청' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my')
@@ -59,6 +67,7 @@ export class UserController {
     description: '이메일과 패스워드로 계정 생성 성공',
     type: UserDto,
   })
+  @ApiOperation({ summary: '이메일과 패스워드로 계정 생성' })
   @ApiBody({ type: SignUpLocalRequestDto })
   @Post('signup-local')
   async signUpLocal(@Body() body: { email: string; password: string }) {
@@ -71,6 +80,7 @@ export class UserController {
     description: 'User Successfully Created',
     type: CreateUserDto,
   })
+  @ApiOperation({ summary: '이메일과 패스워드 유저이름으로 계정 생성' })
   @ApiBody({ type: CreateUserRequestDto })
   async createUser(
     @Body() body: { email: string; password: string; username: string },

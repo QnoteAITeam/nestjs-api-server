@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { IsString } from 'class-validator';
 
 @Exclude()
 export class CreateUserDto {
@@ -33,12 +34,15 @@ export class CreateUserDto {
 }
 
 export class CreateUserRequestDto {
-  @ApiProperty()
+  @IsString()
+  @ApiProperty({ example: 'hhs2003@o.cnu.ac.kr' })
   email: string;
 
-  @ApiProperty()
+  @IsString()
+  @ApiProperty({ example: 'eXaMpLEPasSwORD' })
   password: string;
 
+  @IsString()
   @ApiProperty()
   username: string;
 }

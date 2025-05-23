@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class LocalLoginDto {
   @ApiProperty({
@@ -15,9 +16,11 @@ export class LocalLoginDto {
 }
 
 export class LocalLoginRequestDto {
+  @IsString()
   @ApiProperty({ example: 'hhs2003@o.cnu.ac.kr' })
   email: string;
 
+  @IsString()
   @ApiProperty({ example: 'eXaMpLEPasSwORD' })
   password: string;
 }

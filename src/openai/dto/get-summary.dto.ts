@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class GetSummaryByContentDto {
   @ApiProperty()
@@ -9,6 +10,7 @@ export class GetSummaryByContentDto {
 }
 
 export class GetSummaryByContentRequestDto {
+  @IsString()
   @ApiProperty()
   content: string;
 }

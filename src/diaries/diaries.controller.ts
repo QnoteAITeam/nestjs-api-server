@@ -23,7 +23,12 @@ import { TagService } from 'src/tags/tags.service';
 import { DiaryService } from './diaries.service';
 import { OpenAIService } from 'src/openai/openai.service';
 import { SummaryDto } from 'src/openai/dto/summary.dto';
-import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { DiaryDto } from './dto/diary.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateDiaryRequestDto } from './dto/update-diary.dto';
@@ -42,6 +47,7 @@ export class DiariesController {
     description: 'Diary 생성에 성공했습니다.',
     type: DiaryDto,
   })
+  @ApiOperation({ summary: '일기 생성 API' })
   @ApiBody({ type: CreateDiaryRequestDto })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
@@ -88,6 +94,7 @@ export class DiariesController {
     type: DiaryDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '특정 1개 페이지 (10개) 에 대한 일기 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -116,6 +123,7 @@ export class DiariesController {
     type: DiaryDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '최근 N개에 대한 일기 조회' })
   @ApiBearerAuth('access-token')
   @Get('recent')
   @UseGuards(JwtAuthGuard)
@@ -143,6 +151,7 @@ export class DiariesController {
     description: '최근 일기 조회에 성공했습니다.',
     type: DiaryDto,
   })
+  @ApiOperation({ summary: '최근 일기 조회' })
   @ApiBearerAuth('access-token')
   @Get('recent/one')
   @UseGuards(JwtAuthGuard)
@@ -166,6 +175,7 @@ export class DiariesController {
     description: '특정 일기 조회에 성공했습니다.',
     type: DiaryDto,
   })
+  @ApiOperation({ summary: '아이디로 특정 일기 조회' })
   @ApiBearerAuth('access-token')
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -191,6 +201,7 @@ export class DiariesController {
     description: '특정 일기 업데이트에 성공했습니다.',
     type: DiaryDto,
   })
+  @ApiOperation({ summary: '일기 아이디로 특정 일기 업데이트' })
   @ApiBody({ type: UpdateDiaryRequestDto })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
@@ -217,6 +228,7 @@ export class DiariesController {
     description: '특정 일기 삭제에 성공했습니다.',
     type: DiaryDto,
   })
+  @ApiOperation({ summary: '일기 아이디로 특정 일기 삭제' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete(':id')

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class SendMessageDto {
   @ApiProperty({
@@ -25,6 +26,7 @@ export class ResponseMessageDto {
 }
 
 export class SendMessageRequestDto {
+  @IsString()
   @ApiProperty()
   message: string;
 }

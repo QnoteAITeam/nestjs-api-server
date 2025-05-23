@@ -1,19 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsString } from 'class-validator';
 import { EmotionTag } from 'src/tags/entities/emotion-tag.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { User } from 'src/users/user.entity';
 
 export class CreateDiaryRequestDto {
+  @IsString()
   @ApiProperty()
   title: string;
 
+  @IsString()
   @ApiProperty()
   content: string;
 
-  @ApiProperty()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({ isArray: true, type: [String] })
   tags: string[]; // tag names
 
-  @ApiProperty()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({ isArray: true, type: [String] })
   emotionTags: string[]; // emotion tag names
 }
 

@@ -16,6 +16,7 @@ import { EmotionTag } from './tags/entities/emotion-tag.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { DiaryModule } from './diaries/diaries.module';
 import { UserPassword } from './user-passwords/user-password.entity';
+import { SchedulesModule } from './schedules/schedules.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { UserPassword } from './user-passwords/user-password.entity';
     ChatMessageModule,
     AuthModule,
     DiaryModule,
+    SchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

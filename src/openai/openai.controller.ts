@@ -26,7 +26,13 @@ import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 import { AIRequestMessage } from './dto/openai-request.dto';
 import { ChatCompletion } from 'openai/resources/chat';
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import {
   GetDiaryMetaDataByContentDto,
   GetDiaryMetaDataByContentRequestDto,
@@ -51,6 +57,7 @@ export class OpenAIController {
     description: 'AI에게 성공적으로 요청하여, 응답받았습니다.',
     type: SendMessageDto,
   })
+  @ApiOperation({ summary: '최근 채팅 세션에서 AI에게 요청 보내기' })
   @ApiBody({ type: SendMessageRequestDto })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
@@ -58,7 +65,7 @@ export class OpenAIController {
   @HttpCode(201)
   async sendMessage(
     @User() payload: IPayLoad,
-    @Body() body: { message: string },
+    @Body() body: SendMessageRequestDto,
   ): Promise<SendMessageDto> {
     // 유저의 최근 세션을 찾아서, 최근 세션의 메세지를 다 합쳐서 api쿼리.
     console.log(payload.sub);
@@ -128,11 +135,14 @@ export class OpenAIController {
     description: '일기 내용에 대한 구조가 성공적으로 생성됨.',
     type: GetDiaryMetaDataByContentDto,
   })
+  @ApiOperation({ summary: '일기 내용 생성 API' })
   @ApiBody({ type: GetDiaryMetaDataByContentRequestDto })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post('metadata')
-  async getDiaryMetaDataByContent(@Body() body: { content: string }) {
+  async getDiaryMetaDataByContent(
+    @Body() body: GetDiaryMetaDataByContentRequestDto,
+  ) {
     return this.openAiService.getDiaryMetaDataByContent(body.content);
   }
 
@@ -141,11 +151,12 @@ export class OpenAIController {
     description: '일기에 대한 내용이 성공적으로 요약 되었습니다.',
     type: GetSummaryByContentDto,
   })
+  @ApiOperation({ summary: '일기에 대한 내용 요약 API' })
   @ApiBody({ type: GetSummaryByContentRequestDto })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post('summary/content')
-  async getSummaryByContent(@Body() body: { content: string }) {
+  async getSummaryByContent(@Body() body: GetSummaryByContentRequestDto) {
     return this.openAiService.getDiarySummaryByContent(body.content);
   }
 
@@ -154,6 +165,9 @@ export class OpenAIController {
     description:
       '최근 세션에 대한 예상 유저의 응답을 성공적으로 생성 했습니다.',
     type: GetPredictUserAnswerMostSessionDto,
+  })
+  @ApiOperation({
+    summary: '최근 세션에 대한 예상 유저의 응답 생성',
   })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
@@ -188,6 +202,9 @@ export class OpenAIController {
     description:
       '특정 세션에 대한 예상 유저의 응답을 성공적으로 생성 했습니다.',
     type: GetPredictUserAnswerMostSessionDto,
+  })
+  @ApiOperation({
+    summary: '특정 세션에 대한 예상 유저 응답 생성',
   })
   @ApiParam({
     name: 'id',

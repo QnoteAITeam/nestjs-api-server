@@ -17,7 +17,7 @@ import { ChatSessionService } from 'src/chat-sessions/chat-sessions.service';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { UserService } from 'src/users/users.service';
 import { User } from 'src/auth/auth-user.decorator';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ChatMessageDto } from './dto/chat-message.dto';
 import { plainToInstance } from 'class-transformer';
 
@@ -35,6 +35,7 @@ export class ChatMessageController {
     type: ChatMessageDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '특정 세션의 모든 메세지를 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('session/:sessionId')
@@ -65,6 +66,7 @@ export class ChatMessageController {
     type: ChatMessageDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '특정 세션의 최근 N개의 메세지를 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('session/:sessionId/recent')
@@ -99,6 +101,7 @@ export class ChatMessageController {
     type: ChatMessageDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '마지막 세션에서 N개의 메세지 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my/recent-messages')
@@ -134,6 +137,7 @@ export class ChatMessageController {
     type: ChatMessageDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '마지막 세션에서 모든 메세지 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my/messages')

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class GetDiaryMetaDataByContentDto {
   @ApiProperty()
@@ -15,6 +16,7 @@ export class GetDiaryMetaDataByContentDto {
 }
 
 export class GetDiaryMetaDataByContentRequestDto {
+  @IsString()
   @ApiProperty()
   content: string;
 }

@@ -39,11 +39,12 @@ export class AuthController {
     description: '앱 자체 로그인 서비스에 로그인 성공',
     type: LocalLoginDto,
   })
+  @ApiOperation({ summary: '앱 자체 로그인 서비스에 로그인' })
   @ApiBody({ type: LocalLoginRequestDto })
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('local-login')
-  async localLogin(@Body() body: { email: string; password: string | null }) {
+  async localLogin(@Body() body: LocalLoginRequestDto) {
     return this.authService.getTokensByEmail({ email: body.email });
   }
 
@@ -52,6 +53,7 @@ export class AuthController {
     description: '아직 구현되지 않은 API입니다.',
     type: LocalLoginDto,
   })
+  @ApiOperation({ summary: '미구현 API' })
   @Post('oauth-login')
   async oauthLogin(@Req() req: Request) {
     const oauthAceessToken = req.headers['Authorization'];
@@ -89,11 +91,13 @@ export class AuthController {
     description: 'refreshToken을 이용한, accessToken restore 작업 성공',
     type: RestoreDto,
   })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'refreshToken을 넣어주세요.',
-    required: true,
-  })
+  // @ApiHeader({
+  //   name: 'Authorization',
+  //   description: 'refreshToken을 넣어주세요.',
+  //   required: true,
+  // })
+  @ApiOperation({ summary: 'refreshToken을 이용한 accessToken Restore API' })
+  @ApiBearerAuth('access-token') // 사실 access token이 아니라, refreshToken인데 그냥 귀찮았습니다.
   @Post('restore')
   async restore(@Req() req: Request) {
     const authHeader = req.headers['authorization'];
@@ -109,6 +113,7 @@ export class AuthController {
     description: 'accessToken이 정삼임을 확인',
     type: LocalLoginTestDto,
   })
+  @ApiOperation({ summary: 'accessToken 유효성 검증 API' })
   @ApiHeader({
     name: 'Authorization',
     description: 'accessToken을 넣어주세요.',
@@ -116,7 +121,9 @@ export class AuthController {
   })
   @Post('login/test')
   localLoginTest(@Headers('Authorization') token: string | null) {
-    if (token == null) throw new UnauthorizedException('Toen is went wrong');
+    if (token == null)
+      throw new UnauthorizedException('AccessToken이 없습니다.');
+
     const accessToken = token.replace('Bearer ', '');
 
     try {

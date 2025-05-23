@@ -16,7 +16,12 @@ import { ChatSession } from './chat-session.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { User } from 'src/auth/auth-user.decorator';
-import { ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { ChatSessionDto } from './dto/chat-session.dto';
 
@@ -33,6 +38,7 @@ export class ChatSessionController {
     type: ChatSessionDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '특정 유저의 모든 채팅 세션 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -56,6 +62,7 @@ export class ChatSessionController {
     type: ChatSessionDto,
     isArray: true,
   })
+  @ApiOperation({ summary: '특정 유저의 성공적인 최근 N개의 채팅 세션 조회' })
   @ApiBearerAuth('access-token')
   @ApiQuery({
     name: 'count',
@@ -90,6 +97,7 @@ export class ChatSessionController {
     description: '가장 최근 세션 조회',
     type: ChatSessionDto,
   })
+  @ApiOperation({ summary: '가장 최근 세션 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('latest')
@@ -114,6 +122,7 @@ export class ChatSessionController {
     description: '성공적인 세션 생성',
     type: ChatSessionDto,
   })
+  @ApiOperation({ summary: '세션 생성 API' })
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post()
