@@ -17,6 +17,7 @@ services:
       - NODE_ENV=production
       - MYSQL_DATABASE_SYNCHRONIZE=false
       - PORT=20001
+
     depends_on:
       - mysql-server
     restart: always

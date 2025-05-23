@@ -24,6 +24,7 @@ import {
 import { UserDto } from './dto/user.dto';
 import { SignUpLocalRequestDto } from './dto/signup-local.dto';
 
+
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

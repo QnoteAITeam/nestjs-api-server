@@ -31,11 +31,11 @@ import { SchedulesModule } from './schedules/schedules.module';
       username: 'root',
       password: process.env.DB_ROOT_PW,
       database: process.env.DB_NAME,
+      
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-
       logging: true,
-
       migrations: [__dirname + '/**/migrations/*.js'],
+
       // migrationsRun: false,
       // migrationsTableName: 'migrations',
 

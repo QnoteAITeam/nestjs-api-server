@@ -26,6 +26,7 @@ import { ChatMessageService } from 'src/chat-messages/chat-messages.service';
 import { AIRequestMessage } from './dto/openai-request.dto';
 import { ChatCompletion } from 'openai/resources/chat';
 import { ChatSession } from 'src/chat-sessions/chat-session.entity';
+
 import {
   ApiBearerAuth,
   ApiBody,
@@ -42,6 +43,7 @@ import {
   GetSummaryByContentRequestDto,
 } from './dto/get-summary.dto';
 import { GetPredictUserAnswerMostSessionDto } from './dto/get-predict-most-session.dto';
+
 
 @Controller('openai')
 export class OpenAIController {

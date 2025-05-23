@@ -21,6 +21,7 @@ import { IPayLoad } from 'src/commons/interfaces/interfaces';
 import { UserService } from 'src/users/users.service';
 import { TagService } from 'src/tags/tags.service';
 import { DiaryService } from './diaries.service';
+
 import { OpenAIService } from 'src/openai/openai.service';
 import { SummaryDto } from 'src/openai/dto/summary.dto';
 import {
@@ -32,6 +33,7 @@ import {
 import { DiaryDto } from './dto/diary.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateDiaryRequestDto } from './dto/update-diary.dto';
+
 
 @Controller('diaries')
 export class DiariesController {
@@ -52,6 +54,7 @@ export class DiariesController {
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post()
+
   @HttpCode(201)
   async create(
     @Payload() payload: IPayLoad,

@@ -61,6 +61,7 @@ export class OpenAIService implements OnModuleInit {
     }
   }
 
+
   async getDiaryMetaDataByContent(content: string): Promise<WrittenDiary> {
     const model: Shared.ChatModel = 'gpt-3.5-turbo';
 
