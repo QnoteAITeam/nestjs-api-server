@@ -36,7 +36,6 @@ import { plainToInstance } from 'class-transformer';
 import { UpdateDiaryRequestDto } from './dto/update-diary.dto';
 import { SearchDiaryRequestDto } from './dto/search-diary.dto';
 
-
 @Controller('diaries')
 export class DiariesController {
   constructor(
@@ -56,7 +55,6 @@ export class DiariesController {
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post()
-
   @HttpCode(201)
   async create(
     @Payload() payload: IPayLoad,
