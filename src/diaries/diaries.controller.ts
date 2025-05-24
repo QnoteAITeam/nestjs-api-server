@@ -62,7 +62,8 @@ export class DiariesController {
   ) {
     const user = await this.userService.findByIdWithTags({ id: payload.sub });
 
-    console.log(user);
+    console.log('==========================');
+    console.log(JSON.stringify(dto));
 
     if (user === null || user === undefined)
       throw new NotFoundException('There is no User Entity in DB');
@@ -88,7 +89,17 @@ export class DiariesController {
       promptingSummary: summary.promptingSummary,
     });
 
-    return plainToInstance(DiaryDto, diary, { excludeExtraneousValues: true });
+    const response = plainToInstance(DiaryDto, diary, {
+      excludeExtraneousValues: true,
+    });
+
+    console.log(JSON.stringify(diary));
+
+    return {
+      ...response,
+      tags: diary.tags.map((tag) => tag.name),
+      emotionTags: diary.emotionTags.map((tag) => tag.name),
+    } as DiaryDto;
   }
 
   @ApiResponse({
@@ -113,11 +124,19 @@ export class DiariesController {
         `There is no Imformation for User.id = ${payload.sub}`,
       );
 
-    return plainToInstance(
-      DiaryDto,
-      await this.diaryService.findAll({ user, page }),
-      { excludeExtraneousValues: true },
-    );
+    const diaries = await this.diaryService.findAll({ user, page });
+
+    const response = plainToInstance(DiaryDto, diaries, {
+      excludeExtraneousValues: true,
+    });
+
+    return response.map((diary, index) => {
+      return {
+        ...diary,
+        tags: diaries[index].tags.map((tag) => tag.name),
+        emotionTags: diaries[index].emotionTags.map((tag) => tag.name),
+      };
+    });
   }
 
   @ApiResponse({
@@ -142,8 +161,16 @@ export class DiariesController {
       userId: payload.sub,
     });
 
-    return plainToInstance(DiaryDto, diaries, {
+    const response = plainToInstance(DiaryDto, diaries, {
       excludeExtraneousValues: true,
+    });
+
+    return response.map((diary, index) => {
+      return {
+        ...diary,
+        tags: diaries[index].tags.map((tag) => tag.name),
+        emotionTags: diaries[index].emotionTags.map((tag) => tag.name),
+      };
     });
   }
 
@@ -169,11 +196,19 @@ export class DiariesController {
         `There is no Imformation for User.id = ${payload.sub}`,
       );
 
-    return plainToInstance(
-      DiaryDto,
-      await this.diaryService.findRecentN({ user, count }),
-      { excludeExtraneousValues: true },
-    );
+    const diaries = await this.diaryService.findRecentN({ user, count });
+
+    const response = plainToInstance(DiaryDto, diaries, {
+      excludeExtraneousValues: true,
+    });
+
+    return response.map((diary, index) => {
+      return {
+        ...diary,
+        tags: diaries[index].tags.map((tag) => tag.name),
+        emotionTags: diaries[index].emotionTags.map((tag) => tag.name),
+      };
+    });
   }
 
   @ApiResponse({
@@ -188,16 +223,23 @@ export class DiariesController {
   @HttpCode(200)
   async findMostRecent(@Payload() payload: IPayLoad) {
     const user = await this.userService.findById({ id: payload.sub });
+
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
-    return plainToInstance(
-      DiaryDto,
-      await this.diaryService.findMostRecent(user),
-      {
-        excludeExtraneousValues: true,
-      },
-    );
+    const diary = await this.diaryService.findMostRecent(user);
+
+    if (!diary) throw new NotFoundException('최근 일기가 없습니다.');
+
+    const response = plainToInstance(DiaryDto, diary, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      ...response,
+      tags: diary.tags.map((tag) => tag.name),
+      emotionTags: diary.emotionTags.map((tag) => tag.name),
+    };
   }
 
   @ApiResponse({
@@ -216,6 +258,8 @@ export class DiariesController {
   ) {
     const diary = await this.diaryService.findOneByIdWithRelations(id, [
       'user',
+      'tags',
+      'emotionTags',
     ]);
 
     if (!diary) throw new NotFoundException(`Diary with ID ${id} not found.`);
@@ -223,7 +267,15 @@ export class DiariesController {
     if (diary.user.id !== payload.sub)
       throw new ForbiddenException('이 일기에 접근할 권한이 없습니다.');
 
-    return plainToInstance(DiaryDto, diary, { excludeExtraneousValues: true });
+    const response = plainToInstance(DiaryDto, diary, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      ...response,
+      tags: diary.tags.map((tag) => tag.name),
+      emotionTags: diary.emotionTags.map((tag) => tag.name),
+    };
   }
 
   @ApiResponse({
@@ -246,11 +298,17 @@ export class DiariesController {
     if (!user)
       throw new NotFoundException(`User with ID ${payload.sub} not found.`);
 
-    return plainToInstance(
-      DiaryDto,
-      await this.diaryService.update({ id, user, updateData }),
-      { excludeExtraneousValues: true },
-    );
+    const diary = await this.diaryService.update({ id, user, updateData });
+
+    const response = plainToInstance(DiaryDto, diary, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      ...response,
+      tags: diary.tags.map((tag) => tag.name),
+      emotionTags: diary.emotionTags.map((tag) => tag.name),
+    };
   }
 
   @ApiResponse({
@@ -266,8 +324,14 @@ export class DiariesController {
   async removeDiary(@Param('id', ParseIntPipe) id: number) {
     const deleted = await this.diaryService.remove(id);
 
-    return plainToInstance(DiaryDto, deleted, {
+    const response = plainToInstance(DiaryDto, deleted, {
       excludeExtraneousValues: true,
     });
+
+    return {
+      ...response,
+      tags: deleted.tags.map((tag) => tag.name),
+      emotionTags: deleted.emotionTags.map((tag) => tag.name),
+    };
   }
 }

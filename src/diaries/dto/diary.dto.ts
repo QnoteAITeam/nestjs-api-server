@@ -30,4 +30,12 @@ export class DiaryDto {
   @Expose()
   @ApiProperty()
   promptingSummary: string;
+
+  @Expose()
+  @ApiProperty({ type: [String], example: [] })
+  tags?: string[];
+
+  @Expose()
+  @ApiProperty({ type: [String], example: ['기쁨', '배부름'] })
+  emotionTags?: string[];
 }

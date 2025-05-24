@@ -77,7 +77,7 @@ export class DiaryService {
   async findMostRecent(user: User): Promise<Diary | null> {
     return this.diaryRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['tags', 'emotionTags'],
+      relations: ['tags', 'emotionTags', 'user'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -92,10 +92,17 @@ export class DiaryService {
 
   //id : number에 해당하는 다이어리를 업데이트함.
   async update({ id, user, updateData }: IUpdate): Promise<Diary> {
-    const diary = await this.findOneById(id);
+    const diary = await this.findOneByIdWithRelations(id, [
+      'tags',
+      'emotionTags',
+      'user',
+    ]);
 
     if (diary === null)
       throw new NotFoundException(`Diary with ID ${id} not found.`);
+
+    if (diary.user.id !== user.id)
+      throw new NotFoundException('해당 일기를 수정할 권한이 없습니다.');
 
     if (updateData.title !== undefined) diary.title = updateData.title;
     if (updateData.content !== undefined) diary.content = updateData.content;
@@ -122,12 +129,18 @@ export class DiaryService {
     return this.diaryRepository.save(diary);
   }
 
-  async remove(id: number): Promise<void> {
-    const diary = await this.findOneById(id);
+  async remove(id: number): Promise<Diary> {
+    const diary = await this.findOneByIdWithRelations(id, [
+      'user',
+      'tags',
+      'emotionTags',
+    ]);
+
     if (!diary)
       throw new NotFoundException(`There is no Diary.id = ${id} in DB`);
 
     await this.diaryRepository.remove(diary);
+    return diary;
   }
 
   async searchDiaries({
