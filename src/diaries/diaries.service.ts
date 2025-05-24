@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { Diary } from './diary.entity';
 import { ICreate, IUpdate } from './dto/diaries-controller.dto';
 import { TagService } from 'src/tags/tags.service';
+import { ISearchDiaries } from './interfaces/diaries-service.interface';
 
 @Injectable()
 export class DiaryService {
@@ -127,5 +128,35 @@ export class DiaryService {
       throw new NotFoundException(`There is no Diary.id = ${id} in DB`);
 
     await this.diaryRepository.remove(diary);
+  }
+
+  async searchDiaries({
+    query,
+    page,
+    userId,
+  }: ISearchDiaries): Promise<Diary[]> {
+    if (page <= 0)
+      throw new NotFoundException('Page number must be greater than 0');
+
+    const limit = 10;
+
+    const qb = this.diaryRepository
+      .createQueryBuilder('diary')
+      .leftJoinAndSelect('diary.user', 'user')
+      .leftJoinAndSelect('diary.tags', 'tags')
+      .leftJoinAndSelect('diary.emotionTags', 'emotionTags')
+      .where('diary.userId = :userId', { userId })
+      .andWhere(
+        '(LOWER(diary.title) LIKE LOWER(:query) OR LOWER(diary.content) LIKE LOWER(:query))',
+        {
+          query: `%${query.toLowerCase()}%`,
+        },
+      )
+
+      .orderBy('diary.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    return await qb.getMany();
   }
 }

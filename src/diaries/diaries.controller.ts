@@ -13,6 +13,7 @@ import {
   HttpCode,
   ForbiddenException,
   DefaultValuePipe,
+  Search,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateDiaryRequestDto } from './dto/diaries-controller.dto';
@@ -33,6 +34,7 @@ import {
 import { DiaryDto } from './dto/diary.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateDiaryRequestDto } from './dto/update-diary.dto';
+import { SearchDiaryRequestDto } from './dto/search-diary.dto';
 
 
 @Controller('diaries')
@@ -118,6 +120,33 @@ export class DiariesController {
       await this.diaryService.findAll({ user, page }),
       { excludeExtraneousValues: true },
     );
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'text에 대한, 제목과 내용에 대한 일기 검색에 성공했습니다.',
+    type: DiaryDto,
+    isArray: true,
+  })
+  @ApiOperation({ summary: '일기 검색 API' })
+  @ApiBearerAuth('access-token')
+  @ApiBody({ type: SearchDiaryRequestDto })
+  @UseGuards(JwtAuthGuard)
+  @Post('search')
+  @HttpCode(200)
+  async searchDiaries(
+    @Body() { query, page }: SearchDiaryRequestDto,
+    @Payload() payload: IPayLoad,
+  ): Promise<DiaryDto[]> {
+    const diaries = await this.diaryService.searchDiaries({
+      query,
+      page,
+      userId: payload.sub,
+    });
+
+    return plainToInstance(DiaryDto, diaries, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @ApiResponse({
