@@ -57,7 +57,10 @@ export class TagService {
 
     user.emotionTags = [...(user.emotionTags ?? []), ...filteredTags];
     await this.userRepository.save(user);
-    return filteredTags;
+
+    return await this.emotionTagRepository.find({
+      where: { name: In(emotionTags) },
+    });
   }
 
   //User의 관계 emotionTags들도, 다 넣어서 와야합니다. 사용 하니까요!
@@ -89,7 +92,10 @@ export class TagService {
 
     user.tags = [...(user.tags ?? []), ...filteredTags];
     await this.userRepository.save(user);
-    return filteredTags;
+
+    return await this.tagRepository.find({
+      where: { name: In(tags) },
+    });
   }
 
   //users : User[], is null: relation 반환안합니다.
