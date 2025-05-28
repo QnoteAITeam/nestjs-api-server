@@ -45,7 +45,7 @@ export class OpenAIService implements OnModuleInit {
   }
 
   async sendMessage({ messages }: AIRequestDto): Promise<ChatCompletion> {
-    const model: Shared.ChatModel = 'gpt-3.5-turbo';
+    const model: Shared.ChatModel = 'gpt-4-turbo';
 
     try {
       const response: ChatCompletion =
@@ -61,9 +61,8 @@ export class OpenAIService implements OnModuleInit {
     }
   }
 
-
   async getDiaryMetaDataByContent(content: string): Promise<WrittenDiary> {
-    const model: Shared.ChatModel = 'gpt-3.5-turbo';
+    const model: Shared.ChatModel = 'gpt-4-turbo';
 
     const messages: AIRequestMessage[] = [
       { role: 'system', content: summaryAssistantThird },
@@ -92,7 +91,7 @@ export class OpenAIService implements OnModuleInit {
   }: {
     chatSession: ChatSession;
   }): Promise<PredictDto> {
-    const model: Shared.ChatModel = 'gpt-3.5-turbo';
+    const model: Shared.ChatModel = 'gpt-4-turbo';
 
     if (chatSession.messages === undefined)
       throw new InternalServerErrorException(
@@ -125,7 +124,7 @@ export class OpenAIService implements OnModuleInit {
   }
 
   async getDiarySummaryByContent(content: string): Promise<SummaryDto> {
-    const model: Shared.ChatModel = 'gpt-3.5-turbo';
+    const model: Shared.ChatModel = 'gpt-4-turbo';
 
     const messages: AIRequestMessage[] = [
       { role: 'system', content: summary_model },
