@@ -36,6 +36,7 @@ import { plainToInstance } from 'class-transformer';
 import { UpdateDiaryRequestDto } from './dto/update-diary.dto';
 import { SearchDiaryRequestDto } from './dto/search-diary.dto';
 
+
 @Controller('diaries')
 export class DiariesController {
   constructor(
