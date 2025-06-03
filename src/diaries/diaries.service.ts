@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { Diary } from './diary.entity';
 import { ICreate, IUpdate } from './dto/diaries-controller.dto';
 import { TagService } from 'src/tags/tags.service';
+import { ISearchDiaries } from './interfaces/diaries-service.interface';
 
 @Injectable()
 export class DiaryService {
@@ -76,7 +77,7 @@ export class DiaryService {
   async findMostRecent(user: User): Promise<Diary | null> {
     return this.diaryRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['tags', 'emotionTags'],
+      relations: ['tags', 'emotionTags', 'user'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -91,10 +92,17 @@ export class DiaryService {
 
   //id : number에 해당하는 다이어리를 업데이트함.
   async update({ id, user, updateData }: IUpdate): Promise<Diary> {
-    const diary = await this.findOneById(id);
+    const diary = await this.findOneByIdWithRelations(id, [
+      'tags',
+      'emotionTags',
+      'user',
+    ]);
 
     if (diary === null)
       throw new NotFoundException(`Diary with ID ${id} not found.`);
+
+    if (diary.user.id !== user.id)
+      throw new NotFoundException('해당 일기를 수정할 권한이 없습니다.');
 
     if (updateData.title !== undefined) diary.title = updateData.title;
     if (updateData.content !== undefined) diary.content = updateData.content;
@@ -121,11 +129,47 @@ export class DiaryService {
     return this.diaryRepository.save(diary);
   }
 
-  async remove(id: number): Promise<void> {
-    const diary = await this.findOneById(id);
+  async remove(id: number): Promise<Diary> {
+    const diary = await this.findOneByIdWithRelations(id, [
+      'user',
+      'tags',
+      'emotionTags',
+    ]);
+
     if (!diary)
       throw new NotFoundException(`There is no Diary.id = ${id} in DB`);
 
     await this.diaryRepository.remove(diary);
+    return diary;
+  }
+
+  async searchDiaries({
+    query,
+    page,
+    userId,
+  }: ISearchDiaries): Promise<Diary[]> {
+    if (page <= 0)
+      throw new NotFoundException('Page number must be greater than 0');
+
+    const limit = 10;
+
+    const qb = this.diaryRepository
+      .createQueryBuilder('diary')
+      .leftJoinAndSelect('diary.user', 'user')
+      .leftJoinAndSelect('diary.tags', 'tags')
+      .leftJoinAndSelect('diary.emotionTags', 'emotionTags')
+      .where('diary.userId = :userId', { userId })
+      .andWhere(
+        '(LOWER(diary.title) LIKE LOWER(:query) OR LOWER(diary.content) LIKE LOWER(:query))',
+        {
+          query: `%${query.toLowerCase()}%`,
+        },
+      )
+
+      .orderBy('diary.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    return await qb.getMany();
   }
 }
